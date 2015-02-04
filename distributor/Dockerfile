@@ -1,6 +1,6 @@
 FROM java:openjdk-7-jdk
 
-MAINTAINER Pulsar
+MAINTAINER Xinglang Wang <wangxinglang@gmail.com>
 
 ENV project_version 1.0-SNAPSHOT
 ENV project_name distributor
