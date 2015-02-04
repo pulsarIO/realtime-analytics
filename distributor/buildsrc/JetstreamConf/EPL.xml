@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+
+    default-lazy-init="true">
+    <bean id="EPL" class="com.ebay.jetstream.event.processor.esper.EPL">
+        <property name="statementBlock">
+            <value>
+        <![CDATA[
+        @OutputTo("OutboundMessageChannel")
+        @ClusterAffinityTag(colname="si")
+        @PublishOn(topics="Pulsar.MC/ssnzEvent")	
+        select * from PulsarEvent;
+        
+        @OutputTo("OutboundMessageChannel")
+        @ClusterAffinityTag(colname="_snid")
+        @PublishOn(topics="Pulsar.MC/ssnzEvent")	
+        select * from SessionEndEvent;
+
+        @OutputTo("OutboundMessageChannel")
+        @PublishOn(topics="Pulsar.RR1/Mobile")
+        Select * from PulsarEvent(et='Mobile');
+        
+        @OutputTo("PulsarKafkaChannel")
+        @PublishOn(topics="Pulsar.mobile")
+        select * from PulsarEvent(et='Mobile');
+        ]]>
+            </value>
+        </property>
+    </bean>
+</beans>
+

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd" default-lazy-init="true">  
+    
+    <bean id="EPL" class="com.ebay.jetstream.event.processor.esper.EPL">
+         <property name="statementBlock">
+            <value>
+                <![CDATA[
+                
+                    update istream PulsarRawEvent set ct = System.currentTimeMillis() 
+                    where ct is null;
+                    
+                    insert into PulsarEvent
+                    select 
+                        DeviceEnrichmentUtil.getDeviceInfo(ua) as device, 
+                        GeoEnrichmentUtil.getGeoInfo(ipv4) as geo, 
+                        raw as originEvent 
+                    from PulsarRawEvent as raw;
+
+                    @ClusterAffinityTag(colname="si")
+                    @OutputTo("OutboundMessages")
+                    select device.userAgentVersion as _dd_bv,
+                        device.userAgentFamily as _dd_bf,
+                        device.userAgentType as _dd_d,
+                        device.deviceCategory as _dd_dc,
+                        device.osFamily as _dd_os,
+                        device.osVersion as _dd_osv,
+                        geo.city as _cty,
+                        geo.continent as _con,
+                        geo.country as _cn,
+                        geo.region as _rgn,
+                        geo.longitude as _lon,
+                        geo.latitude as _lat,
+                        geo.countryIsoCode as _tlcn,
+                        originEvent.* from PulsarEvent;
+                        
+                ]]>
+            </value>
+        </property>
+    </bean>
+    
+</beans>
+

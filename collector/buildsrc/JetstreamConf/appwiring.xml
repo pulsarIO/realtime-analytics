@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+    default-lazy-init="false">
+    
+    <bean id="NettyHttpServerConfig" class="com.ebay.jetstream.http.netty.server.HttpServerConfig">
+        <property name="port" value="8080" />
+        <property name="maxWorkQueueSz" value="100000" />
+        <property name="servletExecutorThreads" value="1" />
+        <property name="numIOWorkers" value="1" />
+        <property name="rvcBufSz" value="1048576" />
+        <property name="maxContentLength" value="4194304" />
+        <property name="servletDefinitions">
+            <list>
+                <bean class="com.ebay.jetstream.servlet.ServletDefinition">
+                    <property name="servletClass" value="com.ebay.jetstream.management.PingServlet" />
+                    <property name="urlPath" value="/ecv" />
+                </bean>
+                <bean class="com.ebay.jetstream.servlet.ServletDefinition">
+                    <property name="servletClass" value="com.ebay.jetstream.management.PingServlet" />
+                    <property name="urlPath" value="/" />
+                </bean>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="Validator" class="com.ebay.pulsar.collector.validation.DefaultValidator">
+        <property name="mandatoryTags">
+            <list>
+                <value>si</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="InboundRESTServlet" class="com.ebay.pulsar.collector.servlet.IngestServlet" >
+        <property name="validator" ref="Validator"/>
+    </bean>
+
+    <bean id="NettyHttpServer" class="com.ebay.jetstream.http.netty.server.HttpServer">
+        <property name="serverConfig" ref="NettyHttpServerConfig" />
+    </bean>
+    
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding">
+        <property name="channel" ref="InboundRESTEvents">
+        </property>
+    </bean>
+    
+    <bean id="InboundRESTEvents"
+        class="com.ebay.jetstream.event.channel.messaging.http.inbound.InboundRESTChannel">
+        <property name="server" ref="NettyHttpServer" />
+        <property name="servlet" ref="InboundRESTServlet" />
+        <property name="servletPath" value="/pulsar" />
+        <property name="eventSinks">
+            <list>
+                <ref bean="EsperProcessor" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean 
+        class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="InboundMessages"/>
+    </bean>
+    
+    <bean id="InboundChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.collector/rawEvent</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="InboundMessagingChannelController" 
+        class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannelController">
+        <property name="channel" ref="InboundMessages"/>
+    </bean>
+    
+    <bean id="InboundMessages"
+        class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannel">
+        <property name="address" ref="InboundChannelAddress" />
+        <property name="waitTimeBeforeShutdown" value="5000"/>
+
+        <property name="eventSinks">
+            <list>
+                <ref bean="EsperProcessor" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="EsperProcessor" class="com.ebay.jetstream.event.processor.esper.EsperProcessor">
+        <property name="esperEventListener" ref="EsperEventListener" />
+        <property name="configuration" ref="EsperConfiguration" />
+        <property name="epl" ref="EPL" />
+        <property name="eventSinks">
+            <list>
+                <ref bean="OutboundMessages" />
+            </list>
+        </property>
+        <property name="adviceListener" ref="CollectorRawEventAdviceProcessor"/>
+    </bean>
+    
+    <bean id="OutboundMessageChanneBinder" class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="OutboundMessages" />
+    </bean>
+    
+    <bean id="OutboundMessages"
+        class="com.ebay.jetstream.event.channel.messaging.OutboundMessagingChannel"
+        depends-on="MessageService">
+        <property name="address" ref="OutboundMessageChannelAddress" />
+        <property name="adviceListener" ref="SessionizerRawEventAdviceProcessor"/>
+    </bean>
+
+    <bean id="OutboundMessageChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.sessionizer/rawEvent</value>
+            </list>
+        </property>
+    </bean>
+    
+    <!-- This Orchestrator is used to gracefully shutdown the processors in case of error. Mention all the 
+    processors you want to shut down. Make sure you implement shutdown for custom processors. -->
+    <bean id="ShutDownOrchestrator" class="com.ebay.jetstream.event.support.ShutDownOrchestrator"
+        lazy-init="false">
+        <property name="shutDownComponent">
+            <list>
+                <ref bean="NettyHttpServer" />
+                <ref bean="EsperProcessor" />
+                <ref bean="OutboundMessages" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="DeviceEnrichmentUtil" class="com.ebay.pulsar.collector.udf.DeviceEnrichmentUtil" />
+    
+    <bean id="GeoEnrichmentUtil" class="com.ebay.pulsar.collector.udf.GeoEnrichmentUtil" >
+        <property name="geoDBFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/geodb/GeoLite2-City.mmdb" />
+    </bean>
+    
+    <bean id="EventGenerator" class="com.ebay.pulsar.collector.simulator.Simulator">
+		<property name="simulatorFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/Event.txt" />
+		<property name="ipFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/ip.txt" />
+		<property name="uaFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/userAgent.txt" />
+		<property name="itmFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/item.txt" />
+		<property name="siCount" value="10000" />
+		<property name="minVolume" value="2" />
+		<property name="peakTimes" value="30" />
+		<property name="batchMode" value="true" />
+	</bean>
+</beans>

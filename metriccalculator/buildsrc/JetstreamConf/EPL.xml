@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+
+    default-lazy-init="true">
+
+    <bean id="MCEPL" class="com.ebay.jetstream.event.processor.esper.EPL">
+        <property name="statementBlock">
+            <value>
+            <![CDATA[             
+                insert into MC_mctimegroupMetric
+                    select 'MCPulsarEventCount' as metricName, current_timestamp as timestamp from PulsarEvent;
+                                             
+                insert into MC_mctimegroupMetric
+                    select 'MCSessionCount' as metricName, _snet as timestamp from SessionEndEvent;
+                    
+                @ClusterAffinityTag(colname="metricName")
+                @OutputTo("SOJPipelineStatisticsCollector")
+                @PublishOn(topics="Pulsar.FirstMC/firstMcCounter")
+                select * from MC_mctimegroupMetric;
+            
+                create context MCContext start @now end pattern [timer:interval(10) or EsperEndEvent];
+                
+                context MCContext
+                    insert into MC_Metric
+                        Select count(*) as count, 'pageviews' as metricName from PulsarEvent output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_groupMetric
+                        Select count(*) as count, 'pageviews' as groupId, 'pageviews' as metricName, 5 as frequencyInMin from PulsarEvent output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_groupMetric
+                        Select count(*) as count, 'visitors' as groupId, 'visitors' as metricName, 5 as frequencyInMin from SessionEndEvent output snapshot when terminated;
+                                                                                        
+                context MCContext
+                    insert into MC_groupMetric
+                        Select count(*) as count, _cn as groupId, 'pgspercn' as metricName, 5 as frequencyInMin from PulsarEvent(_cn is not null) group by _cn output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_groupMetric
+                        Select count(*) as count, _dd_bf as groupId, 'pgsperbf' as metricName, 5 as frequencyInMin from PulsarEvent(_dd_bf is not null) group by _dd_bf output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_groupMetric
+                        Select count(*) as count, _dd_os as groupId, 'pgsperos' as metricName, 5 as frequencyInMin from PulsarEvent(_dd_os is not null) group by _dd_os output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_groupMetric
+                        Select count(*) as count, _cn as groupId, 'vistspercn' as metricName, 5 as frequencyInMin from SessionEndEvent(_cn is not null) group by _cn output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_groupMetric
+                        Select count(*) as count, _dd_bf as groupId, 'vistsperbf' as metricName, 5 as frequencyInMin from SessionEndEvent(_dd_bf is not null) group by _dd_bf output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_groupMetric
+                        Select count(*) as count, _dd_os as groupId, 'vistsperos' as metricName, 5 as frequencyInMin from SessionEndEvent(_dd_os is not null) group by _dd_os output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_countrygroupMetric
+                        Select count(*) as count, _cn as groupId, _cty as tag_value, 'pgspercnandcity' as metricName, 5 as frequencyInMin from PulsarEvent(_cn is not null and _cty is not null) group by _cn,_cty output snapshot when terminated;
+                 
+                context MCContext
+                    insert into MC_countrygroupMetric
+                        Select count(*) as count, _cn as groupId, _dd_bf as tag_value, 'pgspercnandbf' as metricName, 5 as frequencyInMin from PulsarEvent(_cn is not null and _dd_bf is not null) group by _cn, _dd_bf output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_countrygroupMetric
+                        Select count(*) as count, _cn as groupId, _dd_os as tag_value, 'pgspercnandos' as metricName, 5 as frequencyInMin from PulsarEvent(_cn is not null and _dd_os is not null) group by _cn, _dd_os output snapshot when terminated;
+                            
+                context MCContext
+                    insert into MC_countrygroupMetric
+                        Select count(*) as count, _cn as groupId, _cty as tag_value, 'vistspercnandcity' as metricName, 5 as frequencyInMin from SessionEndEvent(_cn is not null and _cty is not null) group by _cn,_cty output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_countrygroupMetric
+                        Select count(*) as count, _cn as groupId, _dd_bf as tag_value, 'vistspercnandbf' as metricName, 5 as frequencyInMin from SessionEndEvent(_cn is not null and _dd_bf is not null) group by _cn, _dd_bf output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_countrygroupMetric
+                        Select count(*) as count, _cn as groupId, _dd_os as tag_value, 'vistspercnandos' as metricName, 5 as frequencyInMin from SessionEndEvent(_cn is not null and _dd_os is not null) group by _cn, _dd_os output snapshot when terminated;
+
+                context MCContext
+                    insert into MC_geodevicegroupMetric
+                        Select count(*) as count, _cn as groupId, _con as tag_con, _cty as tag_cty, _dd_d as tag_device, _dd_os as tag_os, _dd_bf as tag_bf, 'pageviewspergeoanddevice' as metricName, 10 as frequencyInMin from PulsarEvent(_cn is not null and _con is not null and _cty is not null and _dd_d is not null and _dd_os is not null and _dd_bf is not null) group by _cn, _con, _cty, _dd_d, _dd_os, _dd_bf output snapshot when terminated;
+                        
+                context MCContext
+                    insert into MC_topgroupMetric
+                        Select count(*) as count, itmT as groupId, 'viperitm' as metricName from PulsarEvent(itmT is not null) group by itmT output snapshot when terminated order by count(*) desc limit 100;
+                        
+                context MCContext
+                    insert into PulsarDeviceCount
+                        Select count(*) as count, _dd_d as device from PulsarEvent(_dd_d is not null) group by _dd_d output snapshot when terminated;
+                    
+                context MCContext
+                    insert into PulsarOsCount
+                        Select count(*) as count, _dd_os as os from PulsarEvent(_dd_os is not null) group by _dd_os output snapshot when terminated;
+                    
+                context MCContext
+                    insert into PulsarBrowserCount
+                        Select count(*) as count, _dd_bf as browser from PulsarEvent(_dd_bf is not null) group by _dd_bf output snapshot when terminated;
+                        
+                context MCContext
+                    insert into PulsarTopCountryCount
+                        Select count(*) as count, _cn as country from PulsarEvent(_cn is not null) group by _cn output snapshot when terminated order by count(*) desc limit 10;
+                       
+                @OutputTo("OutboundMessageChannel")
+                @ClusterAffinityTag(dimension=@CreateDimension(name="groupdimen", dimensionspan="groupId, metricName"))
+                @PublishOn(topics="Pulsar.FirstMC/firstMcCounter")
+                select * from MC_groupMetric;
+                
+                @OutputTo("OutboundMessageChannel")
+                @ClusterAffinityTag(dimension=@CreateDimension(name="groupdimen", dimensionspan="groupId, metricName, tag_value"))
+                select * from MC_countrygroupMetric;
+                
+                @OutputTo("OutboundMessageChannel")
+                @ClusterAffinityTag(dimension=@CreateDimension(name="groupdimen", dimensionspan="groupId, metricName, tag_con, tag_cty, tag_device, tag_os, tag_bf"))
+                @PublishOn(topics="Pulsar.FirstMC/firstMcCounter")
+                select * from MC_geodevicegroupMetric;
+                
+                @OutputTo("OutboundMessageChannel")
+                @ClusterAffinityTag(dimension=@CreateDimension(name="groupdimen", dimensionspan="groupId, metricName"))
+                @PublishOn(topics="Pulsar.FirstMC/firstMcCounter")
+                select * from MC_topgroupMetric;
+                
+                @BroadCast
+                @OutputTo("OutboundMessageChannel")               
+                @PublishOn(topics="Pulsar.Report/metric")
+                select * from MC_Metric;
+                
+                @BroadCast
+                @OutputTo("OutboundMessageChannel")               
+                @PublishOn(topics="Pulsar.Report/metric")
+                select * from PulsarDeviceCount;
+                
+                @BroadCast
+                @OutputTo("OutboundMessageChannel")               
+                @PublishOn(topics="Pulsar.Report/metric")
+                select * from PulsarOsCount;
+                
+                @BroadCast
+                @OutputTo("OutboundMessageChannel")               
+                @PublishOn(topics="Pulsar.Report/metric")
+                select * from PulsarBrowserCount;
+                
+                @BroadCast
+                @OutputTo("OutboundMessageChannel")               
+                @PublishOn(topics="Pulsar.Report/metric")
+                select * from PulsarTopCountryCount;
+                                    ]]>
+            </value>
+        </property>
+    </bean>
+
+    <bean id="MCEPL2" class="com.ebay.jetstream.event.processor.esper.EPL">
+        <property name="statementBlock">
+            <value>
+            <![CDATA[
+            @OutputTo("MCCassandraCollector")
+            select * from MC_mctimegroupMetric;
+
+            @OutputTo("SummingProcessor")
+            select * from MC_groupMetric(count is not null);
+            
+            @OutputTo("SummingProcessor")
+            select * from MC_countrygroupMetric(count is not null);
+            
+            @OutputTo("SummingProcessor")
+            select * from MC_geodevicegroupMetric(count is not null);
+            
+            @OutputTo("SummingProcessor")
+            select * from MC_topgroupMetric(count is not null);
+
+            @OutputTo("MCCassandraCollector")
+            select * from MC_groupMetric(count is null);
+            
+            @OutputTo("MCCassandraCollector")
+            select * from MC_countrygroupMetric(count is null);
+            
+            @OutputTo("MCCassandraCollector")
+            select * from MC_geodevicegroupMetric(count is null);
+            
+            @OutputTo("SummingProcessor")
+            select * from MC_topgroupMetric(count is null);
+	                                ]]>
+            </value>
+        </property>
+    </bean>
+</beans>
+

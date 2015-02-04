@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+default-lazy-init="false">
+
+    <bean id="KafkaMetrics" class="com.ebay.jetstream.event.channel.kafka.KafkaMetrics" />
+    
+    <bean id="AdviceKafkaProducerConfig"
+        class="com.ebay.jetstream.event.channel.kafka.KafkaProducerConfig">
+        <property name="enabled" value="true" />
+        <property name="poolSize" value="1" />
+        <property name="timestampKey" value="js_evt_kafka_produce_ts" />
+        <property name="props">
+            <props>
+                <prop key="metadata.broker.list">#{systemProperties['pulsar.runtime.kafka.brokers'] ?: '127.0.0.1:9092'}</prop>
+                <prop key="request.required.acks">0</prop>
+                <prop key="producer.type">async</prop>
+                <prop key="serializer.class">kafka.serializer.DefaultEncoder</prop>
+                <prop key="key.serializer.class">kafka.serializer.DefaultEncoder</prop>
+                <prop key="partitioner.class">kafka.producer.DefaultPartitioner</prop>
+                <prop key="compression.codec">snappy</prop>
+                <prop key="message.send.max.retries">2</prop>
+                <prop key="retry.backoff.ms">100</prop>
+                <prop key="topic.metadata.refresh.interval.ms">600000</prop>
+                <prop key="queue.buffering.max.ms">500</prop>
+                <prop key="queue.buffering.max.messages">200000</prop>
+                <prop key="queue.enqueue.timeout.ms">0</prop>
+                <prop key="batch.num.messages">300</prop>
+                <prop key="send.buffer.bytes">4194304</prop>
+                <prop key="request.timeout.ms">1500</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <bean id="AdvicedEventKafkaSerializer"
+        class="com.ebay.jetstream.event.channel.kafka.support.AdvicedEventKafkaSerializer">
+    </bean>
+    
+    <bean id="SessionizerRawEventAdviceKafkaChannelAddress"
+        class="com.ebay.jetstream.event.channel.kafka.KafkaChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Replay-Pulsar.sessionizer-rawEvent</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="SessionizerRawEventAdviceKafkaChannel" />
+    </bean>
+
+    <bean id="SessionizerRawEventAdviceKafkaChannel"
+        class="com.ebay.jetstream.event.channel.kafka.OutboundKafkaChannel"
+        depends-on="MessageService">
+        <property name="address" ref="SessionizerRawEventAdviceKafkaChannelAddress" />
+        <property name="config" ref="AdviceKafkaProducerConfig" />
+        <property name="serializer" ref="AdvicedEventKafkaSerializer" />
+    </bean>
+
+    <bean id="SessionizerRawEventAdviceProcessor" class="com.ebay.jetstream.event.support.AdviceProcessor">
+        <property name="retryEventCodes">
+            <list>
+                <value>MSG_RETRY</value> 
+                <value>QUEUE_FULL</value>
+                <value>PAUSE_RETRY</value>
+            </list>
+        </property> 
+        <property name="eventSinks">
+            <list>
+                <ref bean="SessionizerRawEventAdviceKafkaChannel" />
+            </list>
+        </property>
+        <property name="replayNotificationTopic" value="Rtbdpod.local/replay-Pulsar.sessionizer-rawEvent" />
+    </bean>
+
+    <bean id="DistributorSsnzEventAdviceKafkaChannelAddress"
+        class="com.ebay.jetstream.event.channel.kafka.KafkaChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Replay-Pulsar.distributor-ssnzEvent</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="DistributorSsnzEventAdviceKafkaChannel" />
+    </bean>
+
+    <bean id="DistributorSsnzEventAdviceKafkaChannel"
+        class="com.ebay.jetstream.event.channel.kafka.OutboundKafkaChannel"
+        depends-on="MessageService">
+        <property name="address" ref="DistributorSsnzEventAdviceKafkaChannelAddress" />
+        <property name="config" ref="AdviceKafkaProducerConfig" />
+        <property name="serializer" ref="AdvicedEventKafkaSerializer" />
+    </bean>
+
+    <bean id="DistributorSsnzEventAdviceProcessor" class="com.ebay.jetstream.event.support.AdviceProcessor">
+        <property name="retryEventCodes">
+            <list>
+                <value>MSG_RETRY</value> 
+                <value>QUEUE_FULL</value>
+                <value>PAUSE_RETRY</value>
+            </list>
+        </property> 
+        <property name="eventSinks">
+            <list>
+                <ref bean="DistributorSsnzEventAdviceKafkaChannel" />
+            </list>
+        </property>
+        <property name="replayNotificationTopic" value="Rtbdpod.local/replay-Pulsar.distributor-ssnzEvent" />
+    </bean>
+</beans>

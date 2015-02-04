@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+
+    default-lazy-init="true">
+
+    <bean id="SummingProcessorConfig"
+        class="com.ebay.pulsar.metriccalculator.processor.configuration.MCSummingConfiguration">
+        <property name="metricsThreshold">
+            <map>
+                <entry key="pageviewspergeoanddevice" value="1" />
+            </map>
+        </property>
+        <property name="offheapMetricConf">
+            <map>
+                <entry key="pageviewspergeoanddevice">
+                    <!-- User default configuration -->
+                    <bean id="offHeapCacheConfigForPVGEODevice"
+                        class="com.ebay.pulsar.metriccalculator.cache.OffHeapCacheConfig"></bean>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="CassandraConfig"
+        class="com.ebay.pulsar.metriccalculator.cassandra.CassandraConfig">
+        <property name="contactPoints">
+            <list>
+                <value>#{systemProperties['pulsar.runtime.cassandra'] ?: 'localhost'}</value>
+            </list>
+        </property>
+        <property name="enableCassandra" value="true" />
+        <property name="keySpace" value="pulsar" />
+        <property name="localCoreConnectionsPerHost" value="8" />
+        <property name="compression" value="NONE" />
+        <property name="retryPolicy">
+            <bean
+                id="com.datastax.driver.core.policies.DowngradingConsistencyRetryPolicy.INSTANCE"
+                class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+        </property>
+        <property name="reconnectionPolicy">
+            <bean
+                class="com.datastax.driver.core.policies.ConstantReconnectionPolicy">
+                <constructor-arg index="0" value="60000" />
+            </bean>
+        </property>
+        <property name="receiveBufferSize" value="1048576" />
+        <property name="sendBufferSize" value="1048576" />
+        <property name="tcpNoDelay" value="true" />
+        <property name="readTimeoutMillis" value="30000" />
+        <property name="batchSize" value="1" />
+        <property name="throttlingCount" value="10" />
+        <property name="sleepTime" value="1" />
+    </bean>
+
+    <bean id="InboundMessageBinder" scope="singleton"
+        class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="InboundMessages" />
+    </bean>
+
+    <bean id="InboundMessages"
+        class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannel">
+        <property name="waitTimeBeforeShutdown" value="15000" />
+        <property name="maxPauseQueueSize" value="3000" />
+        <property name="address" ref="InboundChannelAddress" />
+        <property name="eventSinks">
+            <list>
+                <ref bean="MCEsperProcessor" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="InboundChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.MC/ssnzEvent</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="InboundMessageBinder2" scope="singleton"
+        class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="InboundMessages2">
+        </property>
+    </bean>
+
+    <bean id="InboundMessages2"
+        class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannel">
+        <property name="waitTimeBeforeShutdown" value="15000" />
+        <property name="maxPauseQueueSize" value="3000" />
+        <property name="address" ref="InboundChannelAddress2" />
+        <property name="eventSinks">
+            <list>
+                <ref bean="MCEsperProcessor2" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="InboundChannelAddress2"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.FirstMC/firstMcCounter</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="MCEsperProcessor"
+        class="com.ebay.jetstream.event.processor.esper.EsperProcessor">
+        <property name="esperEventListener" ref="EsperEventListener" />
+        <property name="configuration" ref="EsperConfiguration" />
+        <property name="epl" ref="MCEPL" />
+        <property name="eventSinks">
+            <list>
+                <ref bean="SummingProcessor" />
+                <ref bean="SOJPipelineStatisticsCollector" />
+                <ref bean="OutboundMessageChannel" />
+            </list>
+        </property>
+        <property name="adviceListener" ref="MCAdviceProcessor" />
+        <property name="esperExceptionHandler">
+            <bean id="EsperExceptionHandler"
+                class="com.ebay.jetstream.event.processor.esper.EsperExceptionHandler" />
+        </property>
+    </bean>
+
+    <bean id="MCEsperProcessor2"
+        class="com.ebay.jetstream.event.processor.esper.EsperProcessor">
+        <property name="esperEventListener" ref="EsperEventListener" />
+        <property name="configuration" ref="EsperConfiguration" />
+        <property name="epl" ref="MCEPL2" />
+        <property name="eventSinks">
+            <list>
+                <ref bean="SummingProcessor" />
+                <ref bean="MCCassandraCollector" />
+            </list>
+        </property>
+        <property name="adviceListener" ref="FirstMCAdviceProcessor" />
+        <property name="esperExceptionHandler">
+            <bean id="EsperExceptionHandler2"
+                class="com.ebay.jetstream.event.processor.esper.EsperExceptionHandler" />
+        </property>
+    </bean>
+
+    <bean id="SummingProcessor"
+        class="com.ebay.pulsar.metriccalculator.processor.MCSummingProcessor">
+        <property name="configuration">
+            <ref bean="SummingProcessorConfig" />
+        </property>
+        <property name="eventSinks">
+            <list>
+                <ref bean="MCCassandraCollector" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="MCCassandraCollector"
+        class="com.ebay.pulsar.metriccalculator.processor.MetricCassandraCollector">
+        <constructor-arg index="0" ref="CassandraConfig" />
+        <property name="adviceListener" ref="FirstMCAdviceProcessor" />
+    </bean>
+
+    <!-- Outbound Channel -->
+    <bean id="OutboundMessageChanneBinder"
+        class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        lazy-init="default" autowire="default">
+        <property name="channel" ref="OutboundMessageChannel" />
+    </bean>
+
+    <bean id="OutboundMessageChannel"
+        class="com.ebay.jetstream.event.channel.messaging.OutboundMessagingChannel"
+        depends-on="MessageService">
+        <property name="address" ref="OutboundMessageChannelAddress" />
+        <property name="adviceListener" ref="FirstMCAdviceProcessor" />
+    </bean>
+
+    <bean id="OutboundMessageChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.FirstMC/firstMcCounter</value>
+                <value>Pulsar.Report/metric</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="SOJPipelineStatisticsCollector"
+        class="com.ebay.pulsar.metriccalculator.processor.SOJPipelineStatisticsCollector">
+        <property name="eventSinks">
+            <list>
+                <ref bean="OutboundMessageChannel" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="ShutDownOrchestrator"
+        class="com.ebay.jetstream.event.support.ShutDownOrchestrator"
+        lazy-init="false">
+        <property name="shutDownComponent">
+            <list>
+                <ref bean="InboundMessages" />
+                <ref bean="MCEsperProcessor" />
+                <ref bean="SOJPipelineStatisticsCollector" />
+                <ref bean="OutboundMessageChannel" />
+                <ref bean="InboundMessages2" />
+                <ref bean="MCEsperProcessor2" />
+                <ref bean="SummingProcessor" />
+                <ref bean="MCCassandraCollector" />
+                <ref bean="FirstMCKafkaChannel" />
+                <ref bean="MCKafkaChannel" />
+                <ref bean="MessageService" />
+            </list>
+        </property>
+    </bean>
+</beans>

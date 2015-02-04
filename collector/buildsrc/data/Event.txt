@@ -1,0 +1,17 @@
+{
+    "si": "${siValue}",
+    "ac": "727354723",
+	"tn": "TenantName",
+	"or": "OrignalName",
+	"ct": ${ctValue},
+    "ipv4": "${ipValue}",
+    "ua": "${uaValue}",
+    "et": "Mobile",
+    "rf": "http://referrer.somewhere.com",
+    "url": "http://LandingPage.com",
+    "itmT":"${itmTitle}",
+    "itmP":${itmPrice},
+    "cap":"${campaignName}",
+    "capG":${cmapaignGMV},
+    "capQ":${cmapaignQuantity}
+}

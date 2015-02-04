@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+
+    default-lazy-init="false">
+    
+    <bean id="KafkaMetrics" class="com.ebay.jetstream.event.channel.kafka.KafkaMetrics" />
+    
+    <bean id="AdviceKafkaProducerConfig"
+        class="com.ebay.jetstream.event.channel.kafka.KafkaProducerConfig">
+        <property name="enabled" value="true" />
+        <property name="poolSize" value="1" />
+        <property name="timestampKey" value="js_evt_kafka_produce_ts" />
+        <property name="props">
+            <props>
+                <prop key="metadata.broker.list">#{systemProperties['pulsar.runtime.kafka.brokers'] ?: '127.0.0.1:9092'}</prop>
+                <prop key="request.required.acks">0</prop>
+                <prop key="producer.type">async</prop>
+                <prop key="serializer.class">kafka.serializer.DefaultEncoder</prop>
+                <prop key="key.serializer.class">kafka.serializer.DefaultEncoder</prop>
+                <prop key="partitioner.class">kafka.producer.DefaultPartitioner</prop>
+                <prop key="compression.codec">snappy</prop>
+                <prop key="message.send.max.retries">2</prop>
+                <prop key="retry.backoff.ms">100</prop>
+                <prop key="topic.metadata.refresh.interval.ms">600000</prop>
+                <prop key="queue.buffering.max.ms">500</prop>
+                <prop key="queue.buffering.max.messages">200000</prop>
+                <prop key="queue.enqueue.timeout.ms">0</prop>
+                <prop key="batch.num.messages">300</prop>
+                <prop key="send.buffer.bytes">4194304</prop>
+                <prop key="request.timeout.ms">1500</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <bean id="adviceEventSerializer"
+        class="com.ebay.jetstream.event.channel.kafka.support.AdvicedEventKafkaSerializer">
+    </bean>
+    
+    <bean id="kafkaControllerConfig"
+        class="com.ebay.jetstream.event.channel.kafka.KafkaControllerConfig">
+        <property name="zkConnect" value="#{systemProperties['pulsar.runtime.kafka.zk'] ?: '127.0.0.1:2181'}" />
+        <property name="zkConnectionTimeoutMs" value="20000" />
+        <property name="zkSessionTimeoutMs" value="30000" />
+        <property name="retryTimes" value="2" />
+        <property name="sleepMsBetweenRetries" value="500" />
+        <property name="rebalanceInterval" value="60000" />
+    </bean>
+    
+    <bean id="kafkaController" class="com.ebay.jetstream.event.channel.kafka.KafkaController">
+        <property name="config" ref="kafkaControllerConfig" />
+    </bean>
+    
+    <bean id="replayKafkaProcessorConfig"
+        class="com.ebay.pulsar.replay.processor.ReplayKafkaProcessorConfig">
+    </bean>
+       
+    <!-- This Orchestrator is used to gracefully shutdown the processors in case of error. Mention all the 
+    processors you want to shut down. Make sure you implement shutdown for custom processors. -->
+    <bean id="ShutDownOrchestrator" class="com.ebay.jetstream.event.support.ShutDownOrchestrator"
+        lazy-init="false">
+        <property name="shutDownComponent">
+            <list>
+                <ref bean="CollectorRawEventInboundKafkaChannel" />
+                <ref bean="CollectorRawEventOutboundMessagesChannel" />
+                <ref bean="CollectorRawEventAdviceKafkaChannel" />
+                <ref bean="SessionizerRawEventInboundKafkaChannel" />
+                <ref bean="SessionizerRawEventOutboundMessagesChannel" />
+                <ref bean="SessionizerRawEventAdviceKafkaChannel" />
+                <ref bean="DistributorSsnzEventInboundKafkaChannel" />
+                <ref bean="DistributorSsnzEventOutboundMessagesChannel" />
+                <ref bean="DistributorSsnzEventAdviceKafkaChannel" />
+                <ref bean="MessageService" />
+            </list>
+        </property>
+    </bean>
+</beans>

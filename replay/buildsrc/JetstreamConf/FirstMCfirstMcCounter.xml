@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+default-lazy-init="false">
+    <bean id="FirstMCReplayController"
+        class="com.ebay.jetstream.event.support.channel.RemoteController">
+        <property name="maxPausedTimeInMs" value="720000" />
+        <property name="replayNotificationTopic"
+            value="Rtbdpod.local/replay-Pulsar.Pulsar.FirstMC-firstMcCounter" />
+    </bean>
+    
+    <bean id="FirstMCAdviceProcessor"
+        class="com.ebay.pulsar.replay.processor.ReplayAdviceProcessor">
+        <property name="retryEventCodes">
+            <list>
+                <value>MSG_RETRY</value>
+                <value>QUEUE_FULL</value>
+                <value>PAUSE_RETRY</value>
+            </list>
+        </property>
+        <property name="eventSinks">
+            <list>
+                <ref bean="FirstMCAdviceKafkaChannel" />
+            </list>
+        </property>
+        <property name="replayNotificationTopic" value="Rtbdpod.local/replay-Pulsar.Pulsar.FirstMC-firstMcCounter" />
+    </bean>
+    
+    <bean id="FirstMCKafkaConsumerConfig"
+        class="com.ebay.jetstream.event.channel.kafka.KafkaConsumerConfig">
+        <property name="enabled" value="true" />
+        <property name="subscribeOnInit" value="true" />
+        <property name="poolSize" value="2" />
+        <property name="fetchWaitMaxMs" value="100" />
+        <property name="groupId" value="FirstMCEventReplay_consumer_group" />
+    </bean>
+    
+    <bean id="FirstMCOutboundMessagesChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.FirstMC/firstMcCounter</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="FirstMCKafkaChannelAddress"
+        class="com.ebay.jetstream.event.channel.kafka.KafkaChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Replay-Pulsar.FirstMC-firstMcCounter</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="FirstMCInboundKafkaChannel"
+        class="com.ebay.jetstream.event.channel.kafka.InboundKafkaChannel"
+        depends-on="MessageService">
+        <property name="address" ref="FirstMCKafkaChannelAddress" />
+        <property name="config" ref="FirstMCKafkaConsumerConfig" />
+        <property name="serializer" ref="adviceEventSerializer" />
+        <property name="kafkaController" ref="kafkaController" />
+        <property name="eventSinks">
+            <list>
+                <ref bean="FirstMCEventProcessor" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="FirstMCEventProcessor" class="com.ebay.pulsar.replay.processor.ReplayInboundKafkaProcessor">
+        <property name="config" ref="replayKafkaProcessorConfig" />
+        <property name="eventSinks">
+                <list>
+                    <ref bean="DistributorSsnzEventOutboundMessagesChannel" />
+                </list>
+            </property>
+    </bean>
+
+    <bean id="FirstMCOutboundMessagesChannel"
+        class="com.ebay.jetstream.event.channel.messaging.OutboundMessagingChannel"
+        depends-on="MessageService">
+        <property name="address" ref="FirstMCOutboundMessagesChannelAddress" />
+        <property name="adviceListener" ref="FirstMCAdviceProcessor"/>
+    </bean>
+
+    <bean id="FirstMCAdviceKafkaChannel"
+        class="com.ebay.jetstream.event.channel.kafka.OutboundKafkaChannel"
+        depends-on="MessageService">
+        <property name="address" ref="FirstMCKafkaChannelAddress" />
+        <property name="config" ref="AdviceKafkaProducerConfig" />
+        <property name="serializer" ref="adviceEventSerializer" />
+    </bean>
+
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding" depends-on="MessageService">
+        <property name="channel" ref="FirstMCOutboundMessagesChannel" />
+    </bean>
+
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding" depends-on="MessageService">
+        <property name="channel" ref="FirstMCInboundKafkaChannel" />
+        <property name="remoteController" ref="FirstMCReplayController" />
+    </bean>
+
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="FirstMCAdviceKafkaChannel" />
+    </bean>
+</beans>

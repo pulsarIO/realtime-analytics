@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+default-lazy-init="false">
+    <bean id="SessionizerRawEventReplayController"
+        class="com.ebay.jetstream.event.support.channel.RemoteController">
+        <property name="maxPausedTimeInMs" value="720000" />
+        <property name="replayNotificationTopic"
+            value="Rtbdpod.local/replay-Pulsar.sessionizer-rawEvent" />
+    </bean>
+    
+    <bean id="SessionizerRawEventAdviceProcessor"
+        class="com.ebay.pulsar.replay.processor.ReplayAdviceProcessor">
+        <property name="retryEventCodes">
+            <list>
+                <value>MSG_RETRY</value>
+                <value>QUEUE_FULL</value>
+                <value>PAUSE_RETRY</value>
+            </list>
+        </property>
+        <property name="eventSinks">
+            <list>
+                <ref bean="SessionizerRawEventAdviceKafkaChannel" />
+            </list>
+        </property>
+        <property name="replayNotificationTopic" value="Rtbdpod.local/replay-Pulsar.sessionizer-rawEvent" />
+    </bean>
+    
+    <bean id="SessionizerRawEventKafkaConsumerConfig"
+        class="com.ebay.jetstream.event.channel.kafka.KafkaConsumerConfig">
+        <property name="enabled" value="true" />
+        <property name="subscribeOnInit" value="true" />
+        <property name="poolSize" value="2" />
+        <property name="fetchWaitMaxMs" value="100" />
+        <property name="groupId" value="SessionizerRawEventReplay_consumer_group" />
+    </bean>
+    
+    <bean id="SessionizerRawEventOutboundMessagesChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.sessionizer/rawEvent</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="SessionizerRawEventKafkaChannelAddress"
+        class="com.ebay.jetstream.event.channel.kafka.KafkaChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Replay-Pulsar.sessionizer-rawEvent</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="SessionizerRawEventInboundKafkaChannel"
+        class="com.ebay.jetstream.event.channel.kafka.InboundKafkaChannel"
+        depends-on="MessageService">
+        <property name="address" ref="SessionizerRawEventKafkaChannelAddress" />
+        <property name="config" ref="SessionizerRawEventKafkaConsumerConfig" />
+        <property name="serializer" ref="adviceEventSerializer" />
+        <property name="kafkaController" ref="kafkaController" />
+        <property name="eventSinks">
+            <list>
+                <ref bean="SessionizerRawEventProcessor" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="SessionizerRawEventProcessor" class="com.ebay.pulsar.replay.processor.ReplayInboundKafkaProcessor">
+        <property name="config" ref="replayKafkaProcessorConfig" />
+        <property name="eventSinks">
+                <list>
+                    <ref bean="SessionizerRawEventOutboundMessagesChannel" />
+                </list>
+            </property>
+    </bean>
+
+    <bean id="SessionizerRawEventOutboundMessagesChannel"
+        class="com.ebay.jetstream.event.channel.messaging.OutboundMessagingChannel"
+        depends-on="MessageService">
+        <property name="address" ref="SessionizerRawEventOutboundMessagesChannelAddress" />
+        <property name="adviceListener" ref="SessionizerRawEventAdviceProcessor"/>
+    </bean>
+
+    <bean id="SessionizerRawEventAdviceKafkaChannel"
+        class="com.ebay.jetstream.event.channel.kafka.OutboundKafkaChannel"
+        depends-on="MessageService">
+        <property name="address" ref="SessionizerRawEventKafkaChannelAddress" />
+        <property name="config" ref="AdviceKafkaProducerConfig" />
+        <property name="serializer" ref="adviceEventSerializer" />
+    </bean>
+
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding" depends-on="MessageService">
+        <property name="channel" ref="SessionizerRawEventOutboundMessagesChannel" />
+    </bean>
+
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding" depends-on="MessageService">
+        <property name="channel" ref="SessionizerRawEventInboundKafkaChannel" />
+        <property name="remoteController" ref="SessionizerRawEventReplayController" />
+    </bean>
+
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="SessionizerRawEventAdviceKafkaChannel" />
+    </bean>
+</beans>

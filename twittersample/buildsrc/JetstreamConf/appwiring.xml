@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+
+    default-lazy-init="false">
+    
+    <bean 
+        class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="TwitterSampleChannel"/>
+    </bean>
+    
+    <bean id="TwitterSampleChannel" class="com.ebay.pulsar.twittersample.channel.TwitterSampleChannel">
+        <property name="eventSinks">
+            <list>
+                <ref bean="OutboundMessages" />
+            </list>
+        </property>
+    </bean>  
+    
+    <bean id="OutboundMessageChanneBinder" class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="OutboundMessages" />
+    </bean>
+    
+    <bean id="OutboundMessages"
+        class="com.ebay.jetstream.event.channel.messaging.OutboundMessagingChannel"
+        depends-on="MessageService">
+        <property name="address" ref="OutboundMessageChannelAddress" />
+    </bean>
+
+    <bean id="OutboundMessageChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.MC/ssnzEvent</value>
+            </list>
+        </property>
+    </bean>
+    
+    <!-- This Orchestrator is used to gracefully shutdown the processors in case of error. Mention all the 
+    processors you want to shut down. Make sure you implement shutdown for custom processors. -->
+    <bean id="ShutDownOrchestrator" class="com.ebay.jetstream.event.support.ShutDownOrchestrator"
+        lazy-init="false">
+        <property name="shutDownComponent">
+            <list>
+                <ref bean="TwitterSampleChannel" />
+                <ref bean="OutboundMessages" />
+            </list>
+        </property>
+    </bean>
+</beans>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+    
+    default-lazy-init="true">
+    <bean id="EsperEventListener"
+        class="com.ebay.jetstream.event.processor.esper.EsperEventListener">
+    </bean>
+
+    <bean id="AdviceListener" class="com.ebay.jetstream.event.advice.DefaultAdviceImpl" />
+
+    <bean id="EsperConfiguration"
+        class="com.ebay.jetstream.event.processor.esper.EsperConfiguration"
+        lazy-init="false">
+        <property name="internalTimerEnabled" value="true" />
+        <property name="msecResolution" value="1" />
+        <property name="timeSourceNano" value="false" />
+        <property name="declaredEvents" ref="EventDefinition" />
+        <property name="listenerDispatchTimeout" value="1000" />
+        <property name="listenerDispatchPreserveOrder" value="false" />
+
+        <property name="insertIntoDispatchTimeout" value="100" />
+        <property name="insertIntoDispatchPreserveOrder" value="false" />
+        <property name="threadPoolSize" value="2" />
+        <property name="queueSizeLimit" value="30000" />
+        <property name="executionLogging" value="true" />
+        <property name="timerLogging" value="true" />
+        <property name="exceptionHandlerFactoryClass"
+            value="com.ebay.jetstream.event.processor.esper.JetstreamExceptionHandlerFactory" />
+        <property name="autoImport">
+            <list>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="EventDefinition"
+        class="com.ebay.jetstream.event.processor.esper.EsperDeclaredEvents">
+        <property name="eventTypes">
+            <list>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="MC_groupMetric" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="groupId" value="java.lang.String" />
+                            <entry key="metricName" value="java.lang.String" />
+                            <entry key="frequencyInMin" value="java.lang.Integer" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="MC_countrygroupMetric" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="groupId" value="java.lang.String" />
+                            <entry key="metricName" value="java.lang.String" />
+                            <entry key="tag_value" value="java.lang.String" />
+                            <entry key="frequencyInMin" value="java.lang.Integer" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="MC_geodevicegroupMetric" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="groupId" value="java.lang.String" />
+                            <entry key="metricName" value="java.lang.String" />
+                            <entry key="tag_con" value="java.lang.String" />
+                            <entry key="tag_cty" value="java.lang.String" />
+                            <entry key="tag_device" value="java.lang.String" />
+                            <entry key="tag_os" value="java.lang.String" />
+                            <entry key="tag_bf" value="java.lang.String" />
+                            <entry key="frequencyInMin" value="java.lang.Integer" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="MC_topgroupMetric" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="groupId" value="java.lang.String" />
+                            <entry key="metricName" value="java.lang.String" />
+                            <entry key="frequencyInMin" value="java.lang.Integer" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="MC_mctimegroupMetric" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="groupId" value="java.lang.Object" />
+                            <entry key="metricName" value="java.lang.String" />
+                            <entry key="metricTime" value="java.lang.Long" />
+                            <entry key="timestamp" value="java.lang.Long" />
+                            <entry key="frequencyInMin" value="java.lang.Integer" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="PulsarEvent" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="si" value="java.lang.String" />
+                            <entry key="tn" value="java.lang.String" />
+                            <entry key="or" value="java.lang.String" />
+                            <entry key="ct" value="java.lang.Long" />
+                            <entry key="ua" value="java.lang.String" />
+                            <entry key="ipv4" value="java.lang.String" />
+                            <entry key="ipv6" value="java.lang.String" />
+                            <entry key="rf" value="java.lang.String" />
+                            <entry key="et" value="java.lang.String" />
+                            <entry key="user" value="java.lang.String" />
+                            <entry key="url" value="java.lang.String" />
+                            <entry key="_cty" value="java.lang.String"/>
+                            <entry key="_cn" value="java.lang.String"/>
+                            <entry key="_con" value="java.lang.String"/>
+                            <entry key="_ls" value="java.lang.String"/>
+                            <entry key="_rgn" value="java.lang.String"/>
+                            <entry key="_dd_d" value="java.lang.String"/>
+                            <entry key="_dd_dc" value="java.lang.String"/>
+                            <entry key="_dd_bv" value="java.lang.String"/>
+                            <entry key="_dd_bf" value="java.lang.String"/>
+                            <entry key="_dd_os" value="java.lang.String"/>
+                            <entry key="_dd_osv" value="java.lang.String"/>
+                            <entry key="itmT" value="java.lang.String"/>
+                        </map>
+                    </property>
+                </bean>
+                <bean class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="SessionEndEvent" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="_snid" value="java.lang.String" />
+                            <entry key="_snec" value="java.lang.Integer" />
+                            <entry key="_sndn" value="java.lang.Long" />
+                            <entry key="_snet" value="java.lang.Long" />
+                             <entry key="_cty" value="java.lang.String"/>
+                            <entry key="_cn" value="java.lang.String"/>
+                            <entry key="_con" value="java.lang.String"/>
+                            <entry key="_ls" value="java.lang.String"/>
+                            <entry key="_rgn" value="java.lang.String"/>
+                            <entry key="_dd_d" value="java.lang.String"/>
+                            <entry key="_dd_dc" value="java.lang.String"/>
+                            <entry key="_dd_bv" value="java.lang.String"/>
+                            <entry key="_dd_bf" value="java.lang.String"/>
+                            <entry key="_dd_os" value="java.lang.String"/>
+                            <entry key="_dd_osv" value="java.lang.String"/>
+                        </map>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>

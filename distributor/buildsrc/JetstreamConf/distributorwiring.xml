@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+
+    default-lazy-init="true">
+
+    <bean id="InboundMessageBinder" scope="singleton"
+        class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="InboundMessages">
+        </property>
+    </bean>
+
+    <bean id="InboundChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.distributor/ssnzEvent</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="InboundMessages"
+        class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannel">
+        <property name="address" ref="InboundChannelAddress" />
+        <property name="waitTimeBeforeShutdown" value="15000" />
+        <property name="eventSinks">
+            <list>
+                <ref bean="DistributorEsperProcessor" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="DistributorEsperProcessor"
+        class="com.ebay.jetstream.event.processor.esper.EsperProcessor">
+        <property name="esperEventListener" ref="EsperEventListener" />
+        <property name="configuration" ref="EsperConfiguration" />
+        <property name="epl" ref="EPL" />
+        <property name="eventSinks">
+            <list>
+                <ref bean="OutboundMessageChannel" />
+                <ref bean="PulsarKafkaChannel" />
+            </list>
+        </property>
+        <property name="adviceListener" ref="DistributorSsnzAdviceProcessor" />
+        <property name="esperExceptionHandler">
+            <bean id="esperExceptionHandler"
+                class="com.ebay.jetstream.event.processor.esper.EsperExceptionHandler"></bean>
+        </property>
+    </bean>
+
+    <!-- Outbound Channel -->
+    <bean id="OutboundMessageChanneBinder"
+        class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        lazy-init="default" autowire="default">
+        <property name="channel" ref="OutboundMessageChannel" />
+    </bean>
+
+    <bean id="OutboundMessageChannel"
+        class="com.ebay.jetstream.event.channel.messaging.OutboundMessagingChannel"
+        depends-on="MessageService">
+        <property name="address" ref="OutboundMessageChannelAddress" />
+        <property name="adviceListener" ref="DistributorMCAdviceProcessor" />
+    </bean>
+
+    <bean id="OutboundMessageChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.MC/ssnzEvent</value>
+                <value>Pulsar.RR1/Mobile</value>
+                <value>Pulsar.Affin1/sellerads</value>
+            </list>
+        </property>
+    </bean>
+    
+    <!-- Pulsar Kafka Outbound Channel -->
+    
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="PulsarKafkaChannel" />
+    </bean>
+    
+    <bean id="PulsarKafkaChannel"
+        class="com.ebay.jetstream.event.channel.kafka.OutboundKafkaChannel"
+        depends-on="MessageService">
+        <property name="address" ref="PulsarKafkaChannelAddress" />
+        <property name="config" ref="AdviceKafkaProducerConfig" />
+        <property name="serializer" ref="PulsarKafkaSerializer" />
+    </bean>
+        
+    <bean id="PulsarKafkaSerializer"
+		class="com.ebay.jetstream.event.channel.kafka.support.JSONMessageSerializer">
+	</bean>
+
+    <bean id="PulsarKafkaChannelAddress"
+        class="com.ebay.jetstream.event.channel.kafka.KafkaChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.mobile</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="ShutDownOrchestrator"
+        class="com.ebay.jetstream.event.support.ShutDownOrchestrator"
+        lazy-init="false">
+        <property name="shutDownComponent">
+            <list>
+                <ref bean="InboundMessages" />
+                <ref bean="DistributorEsperProcessor" />
+                <ref bean="OutboundMessageChannel" />
+                <ref bean="PulsarKafkaChannel" />
+                <ref bean="DistributorSsnzKafkaChannel" />
+                <ref bean="DistributorMCEventKafkaChannel" />
+                <ref bean="MessageService" />
+            </list>
+        </property>
+    </bean>
+</beans>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+
+    default-lazy-init="true">
+    <bean id="EsperEventListener"
+        class="com.ebay.jetstream.event.processor.esper.EsperEventListener">
+    </bean>
+
+    <bean id="AdviceListener" class="com.ebay.jetstream.event.advice.DefaultAdviceImpl" />
+
+    <bean id="EsperConfiguration"
+        class="com.ebay.jetstream.event.processor.esper.EsperConfiguration">
+        <property name="internalTimerEnabled" value="true" />
+        <property name="msecResolution" value="1" />
+        <property name="timeSourceNano" value="false" />
+        <property name="declaredEvents" ref="EventDefinition" />
+        <property name="listenerDispatchTimeout" value="1000" />
+        <property name="listenerDispatchPreserveOrder" value="false" />
+        <property name="insertIntoDispatchTimeout" value="100" />
+        <property name="insertIntoDispatchPreserveOrder" value="false" />
+        <property name="threadPoolSize" value="2" />
+        <property name="queueSizeLimit" value="30000" />
+        <property name="executionLogging" value="true" />
+        <property name="timerLogging" value="true" />
+        <property name="exceptionHandlerFactoryClass"
+            value="com.ebay.jetstream.event.processor.esper.JetstreamExceptionHandlerFactory" />
+        <property name="autoImport">
+            <list>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="EventDefinition"
+        class="com.ebay.jetstream.event.processor.esper.EsperDeclaredEvents">
+        <property name="eventTypes">
+            <list>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="PulsarEvent" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="si" value="java.lang.String" />
+                            <entry key="tn" value="java.lang.String" />
+                            <entry key="or" value="java.lang.String" />
+                            <entry key="ct" value="java.lang.Long" />
+                            <entry key="ua" value="java.lang.String" />
+                            <entry key="ipv4" value="java.lang.String" />
+                            <entry key="ipv6" value="java.lang.String" />
+                            <entry key="rf" value="java.lang.String" />
+                            <entry key="et" value="java.lang.String" />
+                            <entry key="user" value="java.lang.String" />
+                            <entry key="url" value="java.lang.String" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="SessionEndEvent" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="_snid" value="java.lang.String" />
+                        </map>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>

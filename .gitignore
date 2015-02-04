@@ -1,0 +1,25 @@
+#back up file
+*~
+*.bak
+
+# maven target
+target
+target/*
+*/target/*
+bin
+
+# intellij files
+/.idea
+**.iml
+**.patch
+
+# eclipse files
+build
+.metadata
+.project
+.settings
+.prefs
+.classpath
+
+#MAC files
+.DS_Store

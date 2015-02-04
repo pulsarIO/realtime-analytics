@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+
+    default-lazy-init="false">
+
+    <bean id="InboundMessageBinder" 
+        class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="InboundMessages"/>
+    </bean>
+    
+    <bean id="InboundChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.sessionizer/rawEvent</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="InboundMessagingChannelController" 
+        class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannelController">
+        <property name="channel" ref="InboundMessages"/>
+    </bean>
+    
+    <bean id="InboundMessages"
+        class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannel">
+        <property name="address" ref="InboundChannelAddress" />
+        <property name="waitTimeBeforeShutdown" value="15000"/>
+
+        <property name="eventSinks">
+            <list>
+                <ref bean="Sessionizer" />
+            </list>
+        </property>
+    </bean>
+    
+
+    <bean id="Sessionizer"
+        class="com.ebay.pulsar.sessionizer.impl.SessionizerProcessor">
+        <property name="loopbackEventProducer" ref="LoopbackEventProducer" />
+        <property name="config" ref="SessionizerConfig" />
+        <property name="clusterManager" ref="clusterManager" />
+        <property name="eventSinks">
+            <list>
+                <ref bean="OutboundMessages" />
+            </list>
+        </property>
+        <property name="adviceListener" ref="SessionizerRawEventAdviceProcessor"/>
+    </bean>
+    
+    <bean id="clusterManager"
+        class="com.ebay.pulsar.sessionizer.cluster.SessionizerLoopbackRingListener">
+        <property name="loopbackChannelAddress" ref="LoopbackChannelAddress"/>
+    </bean>
+
+    <bean id="LoopbackEventProducer"
+        class="com.ebay.pulsar.sessionizer.impl.LoopbackEventProducer">
+        <property name="eventSinks">
+            <list>
+                <ref bean="OutboundLoopbackMessagingChannel" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="OutboundLoopbackMessagingChannel"
+        class="com.ebay.jetstream.event.channel.messaging.OutboundMessagingChannel"
+        depends-on="MessageService">
+        <property name="address" ref="LoopbackChannelAddress" />
+    </bean>
+
+    <bean id="OutboundLoopbackMessageChanneBinder" class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="OutboundLoopbackMessagingChannel" />
+    </bean>
+
+    <bean id="LoopbackChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.sessionizer/rawEvent</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="OutboundMessageChanneBinder" class="com.ebay.jetstream.event.support.channel.ChannelBinding"
+        depends-on="MessageService">
+        <property name="channel" ref="OutboundMessages" />
+    </bean>
+
+
+    <bean id="OutboundMessages"
+        class="com.ebay.jetstream.event.channel.messaging.OutboundMessagingChannel"
+        depends-on="MessageService">
+        <property name="address" ref="OutboundMessageChannelAddress" />
+        <property name="adviceListener" ref="DistributorSsnzEventAdviceProcessor"/>
+    </bean>
+
+    <bean id="OutboundMessageChannelAddress"
+        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+        <property name="channelTopics">
+            <list>
+                <value>Pulsar.distributor/ssnzEvent</value>
+            </list>
+        </property>
+    </bean>
+        
+    <bean id="SessionizerTimerShutdownHelper"
+        class="com.ebay.pulsar.sessionizer.impl.SessionizerTimerShutdownHelper">
+        <property name="processor" ref="Sessionizer"/>
+    </bean>
+    
+    <bean id="ShutDownOrchestrator" class="com.ebay.jetstream.event.support.ShutDownOrchestrator"
+        lazy-init="false">
+        <property name="shutDownComponent">
+            <list>
+                <ref bean="SessionizerTimerShutdownHelper"/>
+                <ref bean="clusterManager" />
+                <ref bean="InboundMessages" />
+                <ref bean="Sessionizer" />
+                <ref bean="OutboundMessages" />
+                <ref bean="SessionizerRawEventAdviceKafkaChannel" />
+                <ref bean="DistributorSsnzEventAdviceKafkaChannel" />
+                <ref bean="MessageService" />
+            </list>
+        </property>
+    </bean>
+</beans>

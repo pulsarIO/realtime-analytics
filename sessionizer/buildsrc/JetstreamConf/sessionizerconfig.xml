@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+
+    default-lazy-init="false">
+    
+    <bean id="EventDefinition"
+        class="com.ebay.jetstream.event.processor.esper.EsperDeclaredEvents">
+        <property name="eventTypes">
+            <list>
+                <bean class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="PulsarEvent" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="si" value="java.lang.String" />
+                            <entry key="tn" value="java.lang.String" />
+                            <entry key="or" value="java.lang.String" />
+                            <entry key="ct" value="java.lang.Long" />
+                            <entry key="ua" value="java.lang.String" />
+                            <entry key="ipv4" value="java.lang.String" />
+                            <entry key="ipv6" value="java.lang.String" />
+                            <entry key="rf" value="java.lang.String" />
+                            <entry key="et" value="java.lang.String" />
+                            <entry key="user" value="java.lang.String" />
+                            <entry key="url" value="java.lang.String" />
+                            <entry key="et" value="java.lang.String" />
+                            <entry key="_cty" value="java.lang.String" />
+                            <entry key="_con" value="java.lang.String" />
+                            <entry key="_cn" value="java.lang.String" />
+                            <entry key="_rgn" value="java.lang.String" />
+                            <entry key="_lon" value="java.lang.String" />
+                            <entry key="_lat" value="java.lang.String" />
+                            <entry key="_tlcn" value="java.lang.String" />
+                            <entry key="_dd_dc" value="java.lang.String" />
+                            <entry key="_dd_os" value="java.lang.String" />
+                            <entry key="_dd_osv" value="java.lang.String" />
+                            <entry key="_dd_bf" value="java.lang.String" />
+                            <entry key="_dd_d" value="java.lang.String" />
+                            <entry key="_dd_bv" value="java.lang.String" />
+                        </map>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="ControllerEpl" class="com.ebay.jetstream.event.processor.esper.EPL">
+         <property name="statementBlock">
+            <value>
+                <![CDATA[                
+                    
+                    @Session("PulsarSession")
+                    select si as _pk_, ct as _timestamp_
+                    from PulsarEvent(si is not null);
+                ]]>
+            </value>
+        </property>
+    </bean>
+    
+    <bean id="PulsarSessionizerConfig" class="com.ebay.pulsar.sessionizer.config.SessionProfile">
+        <property name="sessionType" value="1"/>
+        <property name="sessionIdKey" value="_snid" />
+        <property name="name" value="PulsarSession"/>
+        <property name="beginMarker" value="SessionBeginEvent"/>
+        <property name="endMarker" value="SessionEndEvent"/>
+        
+        <property name="rawEventDefinition" ref="EventDefinition"/>
+        <property name="epl" ref="PulsarEPL"/>
+    </bean>
+    
+    <bean id="PulsarEPL" class="com.ebay.jetstream.event.processor.esper.EPL">
+         <property name="statementBlock">
+            <value>
+                <![CDATA[
+                @UpdateMetadata
+                select _cty, _rgn, _cn, _con, _lat, _lon, _tlcn,
+                     _dd_bv, _dd_bf, _dd_osv, _dd_os, _dd_dc, _dd_d
+                from PulsarEvent(session.eventCount = 1);
+                ]]>
+            </value>
+        </property>
+    </bean>
+    
+    <bean id="SessionizerConfig" class="com.ebay.pulsar.sessionizer.config.SessionizerConfig">
+        <property name="threadNum" value="4"/>
+        <property name="memoryPageSize" value="16777216"/>
+        <property name="maxIdleTime" value="60000"/>
+        <property name="nativeMemoryInGB" value="6"/>
+        <property name="mainSessionProfiles">
+            <list>
+                <ref bean="PulsarSessionizerConfig" />
+            </list>
+        </property>
+        <property name="rawEventDefinition" ref="EventDefinition"/>
+        <property name="epl" ref="ControllerEpl"/>
+    </bean>
+
+</beans>

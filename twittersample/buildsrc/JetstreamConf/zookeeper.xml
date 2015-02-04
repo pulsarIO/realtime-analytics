@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation=" 
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+    <bean id="zookeeper" class="com.ebay.jetstream.messaging.transport.zookeeper.ZooKeeperTransportConfig">
+        <property name="transportClass" value="com.ebay.jetstream.messaging.transport.zookeeper.ZooKeeperTransport" />
+        <property name="transportName" value="zookeeper" />
+        <property name="protocol" value="tcp" />
+        <property name="contextList">
+            <list>
+                <bean class="com.ebay.jetstream.messaging.config.ContextConfig">
+                    <property name="contextname" value="Rtbdpod.local" />
+                </bean>
+                <bean class="com.ebay.jetstream.messaging.config.ContextConfig">
+                    <property name="contextname" value="Rtbdpod.Messaging" />
+                </bean>
+            </list>
+        </property>
+        <property name="sessionTimeoutInMillis" value="300000" />
+        <property name="zknodes">
+            <list>
+                <bean class="com.ebay.jetstream.messaging.transport.zookeeper.ZooKeeperNode">
+                    <property name="hostname" value="#{systemProperties['jetstream.runtime.zkserver.host'] ?: 'localhost'}"></property>
+                    <property name="port" value="#{systemProperties['jetstream.runtime.zkserver.port'] ?: 2181}"></property>
+                </bean>
+            </list>
+
+        </property>
+    </bean>
+
+</beans>

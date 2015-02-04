@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+    default-lazy-init="true">
+
+    <bean id="SystemPropertiesConfiguration"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+        lazy-init="false">
+        <property name="targetClass" value="com.ebay.jetstream.config.ConfigUtils" />
+        <property name="targetMethod" value="setSystemProperties" />
+        <property name="arguments">
+            <props>
+                <prop key="com.ebay.jetstream.configdomain">
+                    dev.geo-jetstream.com
+                </prop>
+                <!-- add any other system properties here -->
+            </props>
+        </property>
+    </bean>
+
+    <bean id="MessageServiceProperties"
+        class="com.ebay.jetstream.messaging.config.MessageServiceProperties">
+        <property name="nicUsage" ref="NICUsage" />
+        <!-- <property name="dnsMap" ref="DNSMap" /> -->
+        <property name="transports">
+            <list>
+                <ref bean="zookeeper" />
+                <bean
+                    class="com.ebay.jetstream.messaging.transport.netty.config.NettyTransportConfig">
+                    <property name="transportClass"
+                        value="com.ebay.jetstream.messaging.transport.netty.NettyTransport" />
+                    <property name="transportName" value="netty1" />
+                    <property name="protocol" value="tcp" />
+                    <property name="contextList">
+                        <list>
+                            <bean
+                                class="com.ebay.jetstream.messaging.transport.netty.config.NettyContextConfig">
+                                <property name="contextname"
+                                    value="Pulsar.MC" />
+                                <property name="port" value="15599" />
+                            </bean>
+                        </list>
+                    </property>
+                    <property name="sendbuffersize" value="1048576" />
+                    <property name="receivebuffersize" value="1048576" />
+                    <property name="downstreamDispatchQueueSize"
+                        value="262144" />
+                    <property name="connectionTimeoutInSecs"
+                        value="10" />
+                    <property name="asyncConnect" value="true" />
+                    <property name="numAcceptorIoProcessors"
+                        value="1" />
+                    <property name="numConnectorIoProcessors"
+                        value="1" />
+                    <property name="requireDNS" value="false" />
+                    <property name="netmask"
+                        value="#{systemProperties['jetstream.runtime.netmask'] ?: '127.0.0.1/8'}" />
+                    <property name="connectionPoolSz" value="1" />
+                    <property name="maxNettyBackLog" value="20000" />
+                    <property name="idleTimeoutInSecs" value="8640000" />
+                    <property name="enableCompression" value="false" />
+                    <property name="tcpKeepAlive" value="true" />
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.messaging.transport.netty.config.NettyTransportConfig">
+                    <property name="transportClass"
+                        value="com.ebay.jetstream.messaging.transport.netty.NettyTransport" />
+                    <property name="transportName" value="netty2" />
+                    <property name="protocol" value="tcp" />
+                    <property name="contextList">
+                        <list>
+                            <bean
+                                class="com.ebay.jetstream.messaging.transport.netty.config.NettyContextConfig">
+                                <property name="contextname"
+                                    value="Pulsar.FirstMC" />
+                                <property name="port" value="15600" />
+                                <property name="scheduler"
+                                    ref="consistenthashingaffinityscheduler" />
+                            </bean>
+                        </list>
+                    </property>
+                    <property name="sendbuffersize" value="1048576" />
+                    <property name="receivebuffersize" value="1048576" />
+                    <property name="downstreamDispatchQueueSize"
+                        value="262144" />
+                    <property name="connectionTimeoutInSecs"
+                        value="10" />
+                    <property name="asyncConnect" value="true" />
+                    <property name="numAcceptorIoProcessors"
+                        value="1" />
+                    <property name="numConnectorIoProcessors"
+                        value="1" />
+                    <property name="requireDNS" value="false" />
+                    <property name="netmask"
+                        value="#{systemProperties['jetstream.runtime.netmask'] ?: '127.0.0.1/8'}" />
+                    <property name="connectionPoolSz" value="1" />
+                    <property name="maxNettyBackLog" value="20000" />
+                    <property name="idleTimeoutInSecs" value="8640000" />
+                    <property name="enableCompression" value="false" />
+                    <property name="tcpKeepAlive" value="true" />
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.messaging.transport.netty.config.NettyTransportConfig">
+                    <property name="transportClass"
+                        value="com.ebay.jetstream.messaging.transport.netty.NettyTransport" />
+                    <property name="transportName" value="netty2" />
+                    <property name="protocol" value="tcp" />
+                    <property name="contextList">
+                        <list>
+                            <bean
+                                class="com.ebay.jetstream.messaging.transport.netty.config.NettyContextConfig">
+                                <property name="contextname"
+                                    value="Pulsar.Report" />
+                                <property name="port" value="15601" />
+                            </bean>
+                        </list>
+                    </property>
+                    <property name="sendbuffersize" value="1048576" />
+                    <property name="receivebuffersize" value="1048576" />
+                    <property name="downstreamDispatchQueueSize"
+                        value="262144" />
+                    <property name="connectionTimeoutInSecs"
+                        value="10" />
+                    <property name="asyncConnect" value="true" />
+                    <property name="numAcceptorIoProcessors"
+                        value="1" />
+                    <property name="numConnectorIoProcessors"
+                        value="1" />
+                    <property name="requireDNS" value="false" />
+                    <property name="netmask"
+                        value="#{systemProperties['jetstream.runtime.netmask'] ?: '127.0.0.1/8'}" />
+                    <property name="connectionPoolSz" value="1" />
+                    <property name="maxNettyBackLog" value="20000" />
+                    <property name="idleTimeoutInSecs" value="8640000" />
+                    <property name="enableCompression" value="false" />
+                    <property name="tcpKeepAlive" value="true" />
+                </bean>
+            </list>
+        </property>
+        <property name="upstreamDispatchQueueSize" value="300000" />
+        <property name="upstreamDispatchThreadPoolSize" value="1" />
+    </bean>
+
+    <bean id="MessageService"
+        class="com.ebay.jetstream.messaging.config.MessageServiceConfiguration"
+        scope="singleton" depends-on="SystemPropertiesConfiguration">
+        <property name="messageServiceProperties" ref="MessageServiceProperties" />
+    </bean>
+
+    <bean id="consistenthashingaffinityscheduler"
+        class="com.ebay.jetstream.messaging.transport.netty.eventscheduler.ConsistentHashingAffinityScheduler">
+        <property name="hashFunctionClass"
+            value="com.ebay.jetstream.messaging.transport.netty.schedulingalgorithm.consistenthashing.MurmurHashFunction" />
+        <property name="spreadFactor" value="987654321098" />
+    </bean>
+</beans>
