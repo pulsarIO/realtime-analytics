@@ -165,6 +165,18 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
                         </map>
                     </property>
                 </bean>
+                <bean class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="TwitterSample" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="country" value="java.lang.String" />
+                            <entry key="lang" value="java.lang.String" />
+                            <entry key="user" value="java.lang.String" />
+                            <entry key="hashtag" value="java.lang.String" />
+                            <entry key="ct" value="java.lang.Long" />
+                        </map>
+                    </property>
+                </bean>
             </list>
         </property>
     </bean>

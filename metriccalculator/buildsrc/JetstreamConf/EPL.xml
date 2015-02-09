@@ -111,7 +111,23 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
                 context MCContext
                     insert into PulsarTopCountryCount
                         Select count(*) as count, _cn as country from PulsarEvent(_cn is not null) group by _cn output snapshot when terminated order by count(*) desc limit 10;
-                       
+                        
+                context MCContext
+                    insert into TwitterTopCountryCount
+                        Select count(*) as count, country from TwitterSample(country is not null) group by country output snapshot when terminated order by count(*) desc limit 10;
+                        
+                context MCContext
+                    insert into TwitterTopLangCount
+                        Select count(*) as count, lang from TwitterSample(lang is not null) group by lang output snapshot when terminated order by count(*) desc limit 10;
+                        
+                context MCContext
+                    insert into TwitterTopHashTagCount
+                        Select count(*) as count, hashtag from TwitterSample(hashtag is not null) group by hashtag output snapshot when terminated order by count(*) desc limit 10;
+                
+                context MCContext
+                    insert into TwitterEventCount
+                        Select count(*) as count from TwitterSample output snapshot when terminated;
+                        
                 @OutputTo("OutboundMessageChannel")
                 @ClusterAffinityTag(dimension=@CreateDimension(name="groupdimen", dimensionspan="groupId, metricName"))
                 @PublishOn(topics="Pulsar.FirstMC/firstMcCounter")
@@ -155,6 +171,26 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
                 @OutputTo("OutboundMessageChannel")               
                 @PublishOn(topics="Pulsar.Report/metric")
                 select * from PulsarTopCountryCount;
+                
+                @BroadCast
+                @OutputTo("OutboundMessageChannel")               
+                @PublishOn(topics="Pulsar.Report/metric")
+                select * from TwitterTopCountryCount;
+                
+                @BroadCast
+                @OutputTo("OutboundMessageChannel")               
+                @PublishOn(topics="Pulsar.Report/metric")
+                select * from TwitterTopLangCount;
+                
+                @BroadCast
+                @OutputTo("OutboundMessageChannel")               
+                @PublishOn(topics="Pulsar.Report/metric")
+                select * from TwitterTopHashTagCount;
+                
+                @BroadCast
+                @OutputTo("OutboundMessageChannel")               
+                @PublishOn(topics="Pulsar.Report/metric")
+                select * from TwitterEventCount;
                                     ]]>
             </value>
         </property>
