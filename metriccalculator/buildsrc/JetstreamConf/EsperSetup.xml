@@ -39,6 +39,22 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
             </list>
         </property>
     </bean>
+    
+    <bean
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" lazy-init="false">
+        <property name="targetObject">
+            <ref bean = "EsperConfiguration" />
+        </property>
+        <property name="targetMethod">
+            <value>addPlugInAggregationFunctionFactory</value>
+        </property>
+        <property name="arguments">
+            <list>
+                <value>topKNested</value>
+                <value>com.ebay.pulsar.metriccalculator.esper.aggregator.TopKNestedAggregatorFactory</value>
+            </list>
+        </property>
+    </bean>
 
     <bean id="EventDefinition"
         class="com.ebay.jetstream.event.processor.esper.EsperDeclaredEvents">
