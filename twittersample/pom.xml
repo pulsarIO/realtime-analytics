@@ -13,7 +13,7 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
     <name>twittersample app</name>
 
     <properties>
-        <jetstream.version>3.2.1-SNAPSHOT</jetstream.version>
+        <jetstream.version>4.0.0-SNAPSHOT</jetstream.version>
     </properties>
     
     <licenses>
