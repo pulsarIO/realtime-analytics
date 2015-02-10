@@ -122,7 +122,7 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
                         
                 context MCContext
                     insert into TwitterTopHashTagCount
-                        Select topKNested(1000, 20, hashtag, ',') from TwitterSample(hashtag is not null) output snapshot when terminated;
+                        Select topKNested(1000, 20, hashtag, ',') as TopHashTag from TwitterSample(hashtag is not null) output snapshot when terminated;
                 
                 context MCContext
                     insert into TwitterEventCount

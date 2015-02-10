@@ -34,28 +34,23 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
         <property name="timerLogging" value="true" />
         <property name="exceptionHandlerFactoryClass"
             value="com.ebay.jetstream.event.processor.esper.JetstreamExceptionHandlerFactory" />
+        <property name="pluginAggregationFunctions">
+            <list>
+                <ref bean="topKNtestedFunc" />
+            </list>
+        </property>
         <property name="autoImport">
             <list>
             </list>
         </property>
+        
     </bean>
     
-    <bean
-        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" lazy-init="false">
-        <property name="targetObject">
-            <ref bean = "EsperConfiguration" />
-        </property>
-        <property name="targetMethod">
-            <value>addPlugInAggregationFunctionFactory</value>
-        </property>
-        <property name="arguments">
-            <list>
-                <value>topKNested</value>
-                <value>com.ebay.pulsar.metriccalculator.esper.aggregator.TopKNestedAggregatorFactory</value>
-            </list>
-        </property>
+    <bean id= "topKNtestedFunc" class = "com.espertech.esper.client.ConfigurationPlugInAggregationFunction">
+         <property name="name" value="topKNested" />
+         <property name="factoryClassName" value="com.ebay.pulsar.metriccalculator.esper.aggregator.TopKNestedAggregatorFactory" />
     </bean>
-
+    
     <bean id="EventDefinition"
         class="com.ebay.jetstream.event.processor.esper.EsperDeclaredEvents">
         <property name="eventTypes">
