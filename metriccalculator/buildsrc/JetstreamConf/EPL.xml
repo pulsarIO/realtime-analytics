@@ -135,6 +135,7 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
                 
                 @OutputTo("OutboundMessageChannel")
                 @ClusterAffinityTag(dimension=@CreateDimension(name="groupdimen", dimensionspan="groupId, metricName, tag_value"))
+                @PublishOn(topics="Pulsar.FirstMC/firstMcCounter")
                 select * from MC_countrygroupMetric;
                 
                 @OutputTo("OutboundMessageChannel")
