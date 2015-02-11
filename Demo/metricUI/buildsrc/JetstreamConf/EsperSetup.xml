@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+    default-lazy-init="true">
+
+    <bean id="EsperEventListener"
+        class="com.ebay.jetstream.event.processor.esper.EsperEventListener">
+    </bean>
+
+    <bean id="AdviceListener" class="com.ebay.jetstream.event.advice.DefaultAdviceImpl" />
+
+    <bean id="EsperConfiguration"
+        class="com.ebay.jetstream.event.processor.esper.EsperConfiguration">
+        <property name="internalTimerEnabled" value="true" />
+        <property name="msecResolution" value="1" />
+        <property name="timeSourceNano" value="false" />
+        <property name="declaredEvents" ref="EventDefinition" />
+        <property name="listenerDispatchTimeout" value="1000" />
+        <property name="listenerDispatchPreserveOrder" value="false" />
+
+        <property name="insertIntoDispatchTimeout" value="100" />
+        <property name="insertIntoDispatchPreserveOrder" value="false" />
+        <property name="threadPoolSize" value="1" />
+        <property name="queueSizeLimit" value="10000" />
+        <property name="executionLogging" value="true" />
+        <property name="timerLogging" value="true" />
+        <property name="exceptionHandlerFactoryClass"
+            value="com.ebay.jetstream.event.processor.esper.JetstreamExceptionHandlerFactory" />
+        <property name="pluginAggregationFunctions">
+            <list>
+                <ref bean="topNumReformFunc" />
+            </list>
+        </property>
+        <property name="autoImport">
+            <list>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id= "topNumReformFunc" class = "com.espertech.esper.client.ConfigurationPlugInAggregationFunction">
+         <property name="name" value="topNumReform" />
+         <property name="factoryClassName" value="com.ebay.pulsar.metric.esper.aggregator.TopNumReformAggregatorFactory" />
+    </bean>
+    
+    <bean id="EventDefinition"
+        class="com.ebay.jetstream.event.processor.esper.EsperDeclaredEvents">
+        <property name="eventTypes">
+            <list>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="MC_Metric" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="metricName" value="java.lang.String" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="PulsarDeviceCount" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="device" value="java.lang.String" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="PulsarOsCount" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="os" value="java.lang.String" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="PulsarBrowserCount" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="browser" value="java.lang.String" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="PulsarTopCountryCount" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="country" value="java.lang.String" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="TwitterTopCountryCount" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="country" value="java.lang.String" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="TwitterTopLangCount" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                            <entry key="lang" value="java.lang.String" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="TwitterTopHashTagCount" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="TopHashTag" value="java.util.LinkedHashMap" />
+                        </map>
+                    </property>
+                </bean>
+                <bean
+                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                    <property name="eventAlias" value="TwitterEventCount" />
+                    <property name="eventFields">
+                        <map>
+                            <entry key="count" value="java.lang.Long" />
+                        </map>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>

@@ -1,0 +1,46 @@
+<div ng-controller="twitterFeedCtrl">
+  <!--title-->
+  <div class="page-title" >
+    <div>
+      Twitter Feed
+    </div>
+    <span class="container pull-right" ng-show="initTwitterFeedCounter">
+      Next refresh in {{twitterFeedCounter}}s
+    </span>
+  </div>
+  <!--content-->
+  <div id="container" class="container" role="tabpanel">
+    <div class="col-md-12">
+      <nvd3-line-graph data="trendChartData"  tooltips="true" chart-id="trendChart" response="true" height="350" curve="true" xformat="xTimeFormat(data)" yminvalue="0"></nvd3-line-graph>
+    </div>
+
+    <div class="col-md-6 col-sm-12">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th>Hash Tag</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="data in tableData">
+            <td>{{$index+1}}</td>
+            <td  title="{{data.hashtag}}">{{data.hashtag | limitTo:35}}<span ng-show ="data.hashtag.length > 35" >...</span></td>
+            <td>{{data.value}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <nvd3-pie-chart data="countryChartData" chart-id="country" height="200" label-type="key" showLabels="true" pielabelsoutside="false" hide-legend="false" responsive="true">
+      </nvd3-pie-chart>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <nvd3-pie-chart data="languageChartData" chart-id="language" height="200" label-type="key" showLabels="true" pielabelsoutside="false" hide-legend="false" responsive="true">
+      </nvd3-pie-chart>
+    </div>
+  </div>
+</div>

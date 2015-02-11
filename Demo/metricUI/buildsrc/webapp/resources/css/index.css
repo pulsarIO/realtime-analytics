@@ -1,0 +1,88 @@
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../fonts/opensans/regular/opensans-regular.eot');
+    src: url('../fonts/opensans/regular/opensans-regular.eot') format('embedded-opentype'),
+         url('../fonts/opensans/regular/opensans-regular.woff') format('woff'),
+         url('../fonts/opensans/regular/opensans-regular.ttf') format('truetype'),
+         url('../fonts/opensans/regular/opensans-regular.svg') format('svg'); 
+}
+@font-face {
+    font-family: 'Open Sans Bold';
+    src: url('../fonts/opensans/bold/opensans-bold.eot');
+    src: url('../fonts/opensans/bold/opensans-bold.eot') format('embedded-opentype'),
+         url('../fonts/opensans/bold/opensans-bold.woff') format('woff'),
+         url('../fonts/opensans/bold/opensans-bold.ttf') format('truetype'),
+         url('../fonts/opensans/bold/opensans-bold.svg') format('svg');
+}
+@font-face {
+    font-family: 'Open Sans Italic';
+    src: url('../fonts/opensans/italic/opensans-italic.eot');
+    src: url('../fonts/opensans/italic/opensans-italic.eot') format('embedded-opentype'),
+         url('../fonts/opensans/italic/opensans-italic.woff') format('woff'),
+         url('../fonts/opensans/italic/opensans-italic.ttf') format('truetype'),
+         url('../fonts/opensans/italic/opensans-italic.svg') format('svg');
+}
+@font-face {
+    font-family: 'Open Sans Light';
+    src: url('../fonts/opensans/light/opensans-light.eot');
+    src: url('../fonts/opensans/light/opensans-light.eot') format('embedded-opentype'),
+         url('../fonts/opensans/light/opensans-light.woff') format('woff'),
+         url('../fonts/opensans/light/opensans-light.ttf') format('truetype'),
+         url('../fonts/opensans/light/opensans-light.svg') format('svg');
+}
+body {
+  font-family:'Open Sans';
+  background: transparent;
+}
+#container {
+	margin-top: 10px;
+}
+header>div.container{
+	padding: 5px;
+}
+.navbar-header img{
+	max-height: 35px;
+	padding: 5px 15px;
+}
+.page-title {
+	text-align: center;
+	background-color: #008ED6;
+	color: #FFFFFF;
+	height: 120px;
+	font-size: 50px;
+	padding-top: 25px;
+}
+.page-title span{
+    font-size: medium;
+}
+/* filter bar style settings */
+.filter-content{
+    margin-top: 6px;
+    background-color: #008ED6;
+    border: medium none;
+    font-size: 14px;
+    border-radius: 3px;
+    color: #FFFFFF;
+}
+.filter-content button{
+    background-color: #008ED6;
+}
+.filter-content span:hover,.filter-content span:focus{
+    color: #FFFFFF;
+    cursor: auto;
+}
+.filter-content button:hover, .filter-content button:focus{
+    color: #FFFFFF;
+}
+.btn-filter-type {
+    color: #FFFFFF;
+    background-color: #008ed6;
+}
+.btn-filter-type:hover,
+.btn-filter-type:focus,
+.btn-filter-type.focus,
+.btn-filter-type:active, 
+.btn-filter-type.active {
+    color: #FFFFFF;
+    background-color: #006CA3;
+}

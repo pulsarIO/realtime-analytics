@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+    default-lazy-init="false">
+    
+    <bean id="NettyHttpServerConfig" class="com.ebay.jetstream.http.netty.server.HttpServerConfig">
+        <property name="port" value="8083" />
+        <property name="maxWorkQueueSz" value="100000" />
+        <property name="servletExecutorThreads" value="1" />
+        <property name="numIOWorkers" value="1" />
+        <property name="rvcBufSz" value="1048576" />
+        <property name="maxContentLength" value="4194304" />
+        <property name="servletDefinitions">
+            <list>
+                <bean class="com.ebay.jetstream.servlet.ServletDefinition">
+                    <property name="servletClass" value="com.ebay.jetstream.management.PingServlet" />
+                    <property name="urlPath" value="/ecv" />
+                </bean>
+                <bean class="com.ebay.jetstream.servlet.ServletDefinition">
+                    <property name="servletClass" value="com.ebay.jetstream.management.PingServlet" />
+                    <property name="urlPath" value="/" />
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="InboundRESTServlet" class="com.ebay.pulsar.metric.servlet.MetricRestServlet">
+        <constructor-arg ref="MetricService" />
+    </bean>
+    
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding">
+        <property name="channel" ref="InboundRESTEvents">
+        </property>
+    </bean>
+    
+    <bean id="InboundRESTEvents"
+        class="com.ebay.jetstream.event.channel.messaging.http.inbound.InboundRESTChannel">
+        <property name="server" ref="NettyHttpServer" />
+        <property name="servlet" ref="InboundRESTServlet" />
+        <property name="servletPath" value="/pulsar" />
+        <property name="eventSinks">
+            <list>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="MetricService"
+        class="com.ebay.pulsar.metric.impl.cassandra.MetricsServiceCassandra">
+        <property name="configuration">
+            <map>
+                <entry key="contactPoints"
+                    value="#{systemProperties['pulsar.runtime.cassandra'] ?: 'localhost'}" />
+                <entry key="keySpace" value="pulsar" />
+            </map>
+        </property>
+    </bean>
+
+    <bean id="NettyHttpServer" class="com.ebay.jetstream.http.netty.server.HttpServer">
+        <property name="serverConfig" ref="NettyHttpServerConfig" />
+    </bean>
+        
+    <!-- This Orchestrator is used to gracefully shutdown the processors in case of error. Mention all the 
+    processors you want to shut down. Make sure you implement shutdown for custom processors. -->
+    <bean id="ShutDownOrchestrator" class="com.ebay.jetstream.event.support.ShutDownOrchestrator" lazy-init="false">
+    <property name="shutDownComponent">
+        <list>
+            <ref bean="NettyHttpServer" />
+            <ref bean="MetricService" />
+        </list>
+    </property>
+    </bean>
+</beans>

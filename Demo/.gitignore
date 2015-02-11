@@ -1,0 +1,42 @@
+#back up file
+*~
+*.bak
+
+# ebay generated
+ebay.log
+ebay.log.*
+gen-src
+gen-meta-src
+metricUI/logs
+temp_persist_config_*.xml
+
+# maven target
+target
+target/*
+*/target/*
+bin
+
+# intellij files
+/.idea
+**.iml
+**.patch
+
+# eclipse files
+build
+.metadata
+.project
+.settings
+.prefs
+.classpath
+
+#jetstream
+*/buildsrc/JetstreamConf/META-INF/*
+*/buildsrc/JetstreamConf/WEB-INF/*
+*/buildsrc/JetstreamConf/css/*
+*/buildsrc/JetstreamConf/images/*
+*/buildsrc/JetstreamConf/js/*
+*/buildsrc/JetstreamConf/build.properties
+*/buildsrc/JetstreamConf/buildinfo.properties
+
+#MAC files
+.DS_Store

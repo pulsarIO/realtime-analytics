@@ -1,0 +1,75 @@
+<div ng-controller="batchCtrl">
+    <!--title-->
+    <div class="page-title" >
+        <div>
+            Batch
+        </div>
+    </div>
+    <!--content-->
+    <div id="container" class="container" role="tabpanel">
+        <!--search country-->
+        <!-- <div class="col-md-6 col-sm-9">
+            <div class="input-group">
+                <span class="input-group-addon">Country</span>
+                <input type="text" class="form-control" placeholder="Please enter country name">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button">Go12</button>
+                </span>
+            </div>
+        </div> -->
+        <!--filter type-->
+        <div id="pageOrSessionSwitch" class="col-md-3 col-sm-3 btn-group" data-toggle="buttons">
+            <label class="btn btn-filter-type active" ng-click="renderLinearChart('Page')">
+                <input type="radio" name="options" id="option1" autocomplete="off" checked> Page
+            </label>
+            <label class="btn btn-filter-type" ng-click="renderLinearChart('Session')">
+                <input type="radio" name="options" id="option2" autocomplete="off"> Session
+            </label>
+        </div>
+        <!--filter country-->
+        <div class="col-md-3">
+            <div class="btn-group filter-content " ng-show="countryFilter">
+                <span class="btn btn-xs right-border" >Country = {{countryFilter}}</span>
+                <button class="btn btn-xs left-border" title="remove" ng-click="removeCountryFilter()">
+                    <i class="glyphicon glyphicon-remove"></i>
+                </button>
+            </div>
+        </div>
+        <!--trend chart-->
+        <div class="col-md-12 col-sm-12">
+            <nvd3-line-graph data="trendChartData"  tooltips="true" chart-id="trendChart" response="true" height="350" curve="true" xformat="xTimeFormat(data)" yminvalue="0"></nvd3-line-graph>
+        </div>
+
+        <!--table-->
+        <div class="col-md-6 col-sm-12">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Index</th>
+                        <th>{{countryFilter == undefined ? 'Country':'City'}}</th>
+                        <th>Page</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="data in tableData">
+                        <td>{{$index+1}}</td>
+                        <td>
+	                        <img ng-banner="{{data.name}}" src="../imgs/blank.gif"/>&nbsp;&nbsp;
+	                    	<a href="" ng-click="dirlldown(data.name)" ng-show="countryFilter == undefined">{{data.name}}</a>
+	                    	<span ng-show="countryFilter != undefined">{{data.name}}</span>
+                    	</td>
+                        <td>{{data.value}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--os chart-->
+        <div class="col-md-3 col-sm-6">
+            <nvd3-pie-chart data="osChartData" chart-id="os" height="200" label-type="key" showLabels="true" pielabelsoutside="false" hide-legend="false" responsive="true"></nvd3-pie-chart>
+        </div>
+        <!--broswer chart-->
+        <div class="col-md-3 col-sm-6">
+            <nvd3-pie-chart data="browserChartData" chart-id="broser" height="200" label-type="key" showLabels="true" pielabelsoutside="false" hide-legend="false" responsive="true"></nvd3-pie-chart>
+        </div>
+    </div>
+</div>

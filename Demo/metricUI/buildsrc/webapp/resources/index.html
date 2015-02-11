@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Pulsar IO</title>
+    <link rel="icon" href="imgs/favicon.ico">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="css/nv.d3.min.css">
+    <link rel="stylesheet" href="css/flags.css">
+    <link rel="stylesheet" href="css/index.css">
+  </head>
+
+  <body ng-app="indexApp">
+    <!--header-->
+    <header>
+      <div class="container">
+        <!--logo-->
+        <div class="navbar-header">
+          <img src="imgs/logo.png" alt="">
+        </div>
+        <!--menu-->
+        <nav class="collapse navbar-collapse">
+          <ul class="nav navbar-nav pull-right">
+            <li><a href ng-click="switchPage('realtime')" role="tab" data-toggle="tab">Realtime</a></li>
+            <li role="presentation">
+              <a href ng-click="switchPage('batch')" role="tab" data-toggle="tab">Batch</a>
+            </li>
+            <li>
+              <a href ng-click="switchPage('twitterFeed')" role="tab" data-toggle="tab">Twitter Feed</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    
+    <!--view-->
+    <div ng-include src="pageUrl"></div>
+
+
+    <!--plugin-->
+    <script src="js/plugin/jquery-1.11.2.min.js"></script>
+    <script src="js/plugin/angular.min.js"></script>
+    <script src="js/plugin/angular-resource.min.js"></script>
+    <script src="js/plugin/bootstrap.min.js"></script>
+    <script src="js/plugin/d3.min.js"></script>
+    <script src="js/plugin/nv.d3.min.js"></script>
+    <script src="js/plugin/moment.min.js"></script>
+    <script src="js/plugin/ng-nvd3.js"></script>
+    <script src="js/plugin/crossfilter.js"></script>
+    <script src="js/plugin/hashmap.js"></script>
+    <!--customize--> 
+    <script src="js/index.js"></script>
+    <script src="js/service/metricservice.js"></script>
+    <script src="js/controller/realtimeCtrl.js"></script>
+    <script src="js/controller/batchCtrl.js"></script>
+    <script src="js/controller/twitterFeedCtrl.js"></script>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+<div ng-controller="realtimeCtrl">
+  <!--title-->
+  <div class="page-title" >
+    <div>
+      RealTime
+    </div>
+    <span class="container pull-right" ng-show="initRealTimeCounter">
+      Next refresh in {{realTimeCounter}}s
+    </span>
+  </div>
+  <!--content-->
+  <div id="container" class="container" role="tabpanel">
+    <div class="col-md-12">
+      <nvd3-line-graph data="trendChartData"  tooltips="true" chart-id="trendChart" response="true" height="350" curve="true" xformat="xTimeFormat(data)" yminvalue="0"></nvd3-line-graph>
+    </div>
+
+    <div class="col-md-6 col-sm-12">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th>Country</th>
+            <th>Page</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="data in tableData">
+            <td>{{$index+1}}</td>
+            <td><img ng-banner="{{data.country}}" src="../imgs/blank.gif"/>&nbsp;&nbsp;{{data.country}}</td>
+            <td>{{data.value}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <nvd3-pie-chart data="osChartData" chart-id="os" height="200" label-type="key" showLabels="true" pielabelsoutside="false" hide-legend="false" responsive="true">
+      </nvd3-pie-chart>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <nvd3-pie-chart data="browserChartData" chart-id="broser" height="200" label-type="key" showLabels="true" pielabelsoutside="false" hide-legend="false" responsive="true">
+      </nvd3-pie-chart>
+    </div>
+  </div>
+</div>

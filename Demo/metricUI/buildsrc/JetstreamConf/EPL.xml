@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+    default-lazy-init="true">
+
+    <bean id="MetricUIEPL" class="com.ebay.jetstream.event.processor.esper.EPL">
+        <property name="statementBlock">
+            <value><![CDATA[			
+            create context MCContext start @now end pattern [timer:interval(10) or EsperEndEvent];
+            
+            @OutputTo("MetricProcessor")
+            context MCContext
+                SELECT context.id as context_id, sum(count) as value, metricName, current_timestamp as timestamp FROM MC_Metric group by metricName output snapshot when terminated;
+            
+            @OutputTo("MetricProcessor")
+            context MCContext
+                SELECT context.id as context_id, sum(count) as value, device FROM PulsarDeviceCount group by device output snapshot when terminated;
+                
+            @OutputTo("MetricProcessor")
+            context MCContext
+                SELECT context.id as context_id, sum(count) as value, os FROM PulsarOsCount group by os output snapshot when terminated;
+                
+            @OutputTo("MetricProcessor")
+            context MCContext
+                SELECT context.id as context_id, sum(count) as value, browser FROM PulsarBrowserCount group by browser output snapshot when terminated;
+                
+            @OutputTo("MetricProcessor")
+            context MCContext
+                SELECT context.id as context_id, sum(count) as value, country FROM PulsarTopCountryCount group by country output snapshot when terminated order by sum(count) desc limit 10;
+                
+            @OutputTo("MetricProcessor")
+            context MCContext
+                SELECT context.id as context_id, sum(count) as value, country FROM TwitterTopCountryCount group by country output snapshot when terminated order by sum(count) desc limit 10;
+                
+            @OutputTo("MetricProcessor")
+            context MCContext
+                SELECT context.id as context_id, sum(count) as value, lang FROM TwitterTopLangCount group by lang output snapshot when terminated order by sum(count) desc limit 10;
+                
+            @OutputTo("MetricProcessor")
+            context MCContext
+                SELECT context.id as context_id, topNumReform(1000,10,TopHashTag) as TopHashTags FROM TwitterTopHashTagCount output snapshot when terminated;
+                
+            @OutputTo("MetricProcessor")
+            context MCContext
+                SELECT context.id as context_id, sum(count) as value, current_timestamp as timestamp FROM TwitterEventCount output snapshot when terminated order by sum(count) desc limit 10;
+        ]]></value>
+        </property>
+    </bean>
+</beans>

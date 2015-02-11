@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+    <mvc:annotation-driven />
+    <context:annotation-config/>
+
+    <context:component-scan base-package="com.ebay.pulsar.metric.controller" />
+    <mvc:resources mapping="/*" location="/resources/" />
+
+    <bean id="myResourceHandler" name="myResourceHandler"
+        class="org.springframework.web.servlet.resource.ResourceHttpRequestHandler">
+        <property name="locations" value="/webapp/resources/" />
+        <property name="supportedMethods">
+            <list>
+                <value>GET</value>
+                <value>HEAD</value>
+                <value>POST</value>
+            </list>
+        </property>
+    </bean>
+    <bean
+        class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix">
+            <value>/resources/</value>
+        </property>
+        <property name="suffix">
+            <value>.jsp</value>
+        </property>
+    </bean>
+    
+    <bean id="MetricWebSocketCreator" class="com.ebay.pulsar.websocket.MetricWebSocketCreator" lazy-init="false">
+        <property name="wsConnectionManager">
+            <ref parent="WebSocketConnectionManager"/>
+        </property>
+    </bean>
+    <bean id= "SpringWebContextHolder" class="com.ebay.pulsar.metric.server.SpringWebContextHolder" lazy-init="false"/>
+    
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+        <property name="messageConverters">
+            <list>
+                 <ref bean="textMarshaller"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="textMarshaller"
+        class="org.springframework.http.converter.StringHttpMessageConverter">
+    </bean>
+</beans>

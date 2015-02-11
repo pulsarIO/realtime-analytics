@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+    <bean id="SystemPropertiesConfiguration"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+        lazy-init="false">
+        <property name="targetClass" value="com.ebay.jetstream.config.ConfigUtils" />
+        <property name="targetMethod" value="setSystemProperties" />
+        <property name="arguments">
+            <props>
+                <prop key="com.ebay.jetstream.configdomain">
+                    dev.geo-jetstream.com
+                </prop>
+                <!-- add any other system properties here -->
+            </props>
+        </property>
+    </bean>
+
+    <!-- TRANSPORT SERVICE CONFIG -->
+    <bean id="MessageServiceProperties"
+        class="com.ebay.jetstream.messaging.config.MessageServiceProperties">
+        <property name="nicUsage" ref="NICUsage" />
+        <!-- <property name="dnsMap" ref="DNSMap" /> -->
+        <property name="transports">
+            <list>
+                <ref bean="zookeeper" />
+            </list>
+        </property>
+        <property name="upstreamDispatchQueueSize" value="300000" />
+        <property name="upstreamDispatchThreadPoolSize" value="2" />
+    </bean>
+
+    <bean id="MessageService"
+        class="com.ebay.jetstream.messaging.config.MessageServiceConfiguration"
+        depends-on="SystemPropertiesConfiguration">
+        <property name="messageServiceProperties" ref="MessageServiceProperties" />
+    </bean>
+</beans>
