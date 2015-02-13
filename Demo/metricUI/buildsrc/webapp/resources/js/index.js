@@ -28,6 +28,10 @@ var app = angular.module("indexApp", ['ngResource','ng-nvd3']).run(function($roo
         $rootScope.pageUrl = 'views/'+pageURL+'.html';
     }
 
+    $rootScope.gotoMCEPL = function(){
+        window.open('http://'+location.host+'/pulsar/metriccalculator?$format=xml');
+    }
+
     // web socket generator
     $rootScope.pulsarmetric = function() {
         

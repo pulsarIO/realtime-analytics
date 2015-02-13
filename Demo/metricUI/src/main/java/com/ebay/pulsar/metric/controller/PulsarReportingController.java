@@ -5,8 +5,10 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
 */
 package com.ebay.pulsar.metric.controller;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +29,9 @@ public class PulsarReportingController {
     
     private static String MetricServer = System.getProperty("metricserver.host") != null ? System.getProperty("metricserver.host") : "localhost";
     private static int MetricSeverPort = System.getProperty("metricserver.port") != null ? Integer.parseInt((System.getProperty("metricserver.port"))) : 8083;
+    private static String MetricCalculator = System.getProperty("metriccalculator.host") != null ? System.getProperty("metriccalculator.host") : "localhost";
+    private static int MetricCalculatorPort = System.getProperty("metriccalculator.port") != null ? Integer.parseInt((System.getProperty("metriccalculator.port"))) : 9999;
+    private static String MetricCalculatorPath = "/Event/Processor/MCEPL";
     
     @Autowired
     private RestTemplate restTemplate;
@@ -45,7 +50,17 @@ public class PulsarReportingController {
             restTemplate.exchange(uri, method, HttpEntity.EMPTY, String.class);
         return responseEntity.getBody();
     }
-
+    
+    @SuppressWarnings("rawtypes")
+    @RequestMapping(value="pulsar/metriccalculator", method=RequestMethod.GET)
+    public  ResponseEntity viewMetricCalculator(HttpMethod method, HttpServletRequest request,
+            HttpServletResponse response) throws URISyntaxException {
+        URI url = new URI("http", null, MetricCalculator, MetricCalculatorPort, MetricCalculatorPath, request.getQueryString(), null);
+    	ResponseEntity<String> responseEntity =
+                restTemplate.exchange(url, method, HttpEntity.EMPTY, String.class);
+        return responseEntity;
+    }
+    
     public RestTemplate getRestTemplate() {
         return restTemplate;
     }

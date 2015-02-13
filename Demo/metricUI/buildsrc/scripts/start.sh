@@ -12,6 +12,8 @@ java \
     -Djetstream.runtime.netmask="$JETSTREAM_NETMASK" \
     -Dmetricserver.host="$METRIC_SERVER_HOST" \
     -Dmetricserver.port="$METRIC_SERVER_PORT" \
+    -Dmetriccalculator.host="$METRIC_CALCULATOR_HOST" \
+    -Dmetriccalculator.port="$METRIC_CALCULATOR_PORT" \
     -jar $JETSTREAM_APP_JAR_NAME \
     -n $JETSTREAM_APP_NAME \
     -cv $JETSTREAM_CONFIG_VERSION \
