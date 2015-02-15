@@ -152,7 +152,7 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
 		<property name="ipFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/ip.txt" />
 		<property name="uaFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/userAgent.txt" />
 		<property name="itmFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/item.txt" />
-		<property name="siCount" value="10000" />
+		<property name="siCount" value="1000" />
 		<property name="minVolume" value="2" />
 		<property name="peakTimes" value="30" />
 		<property name="batchMode" value="true" />
