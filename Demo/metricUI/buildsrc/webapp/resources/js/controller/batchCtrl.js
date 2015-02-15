@@ -55,7 +55,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 	//drill-downed pageview
 	function getDrillDownedPageviews(){
 		var defer = $q.defer();
-		MetricService.query({params:"columnFamilyName=mc_groupmetric&metricname=pgspercn"},{},function(data){
+		MetricService.query({params:"columnFamilyName=mc_groupmetric&metricname="+($rootScope.pageOrSession == 'Page' ? 'pgsper' :'vistsper')+"cn"},{},function(data){
 			var base = crossfilter(data);
 			//var data = base.dimension(function(fact){return fact.groupId;}).filter("Germany").top(Infinity);
 			var data = base.dimension(function(fact){return fact.groupId;}).filter($rootScope.countryFilter).top(Infinity);
@@ -148,7 +148,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 	//overall country
 	function getOverallCountry(){
 		var defer = $q.defer();
-		MetricService.query({params:"columnFamilyName=mc_groupmetric&metricname=pgspercn"},{},function(data){
+		MetricService.query({params:"columnFamilyName=mc_groupmetric&metricname="+($rootScope.pageOrSession == 'Page' ? 'pgsper' :'vistsper')+"cn"},{},function(data){
 			var base = crossfilter(data);
 			var result = base.dimension(function(fact){return fact.groupId;}).group().reduceSum(function(fact){return fact.value;}).top(Infinity);
 			var transformed = result.map(function( item ){
@@ -166,8 +166,8 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 	//drill-downed country
 	function getDrillDownedCountry(){
 		var defer = $q.defer();
-		// MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname=pgspercnandcity&groupid=Germany"},{},function(data){
-		MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname=pgspercnandcity&groupid="+$rootScope.countryFilter},{},function(data){
+		// MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname="+($rootScope.pageOrSession == 'Page' ? 'pgsper' :'vistsper')+"cnandcity&groupid=Germany"},{},function(data){
+		MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname="+($rootScope.pageOrSession == 'Page' ? 'pgsper' :'vistsper')+"cnandcity&groupid="+$rootScope.countryFilter},{},function(data){
 			var base = crossfilter(data);
 			var result = base.dimension(function(fact){return fact.tagMap.tag_value;}).group().reduceSum(function(fact){return fact.value;}).top(Infinity);
 			var transformed = result.map(function(item){
@@ -195,7 +195,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 	//overall os
 	function getOverallOs(){
 		var defer = $q.defer();
-		MetricService.query({params:"columnFamilyName=mc_groupmetric&metricname=pgsperos"},{},function(data){
+		MetricService.query({params:"columnFamilyName=mc_groupmetric&metricname="+($rootScope.pageOrSession == 'Page' ? 'pgsper' :'vistsper')+"os"},{},function(data){
 			var base = crossfilter(data);
 			var result = base.dimension(function(fact){return fact.groupId;}).group().reduceSum(function(fact){return fact.value;}).top(Infinity);
 			var transformed = result.map(function( item ){
@@ -213,8 +213,8 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 	//drill-downed os
 	function getDrillDownedOs(){
 		var defer = $q.defer();
-		// MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname=pgspercnandos&groupid=Germany"},{},function(data){
-		MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname=pgspercnandos&groupid="+$rootScope.countryFilter},{},function(data){
+		// MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname="+($rootScope.pageOrSession == 'Page' ? 'pgsper' :'vistsper')+"cnandos&groupid=Germany"},{},function(data){
+		MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname="+($rootScope.pageOrSession == 'Page' ? 'pgsper' :'vistsper')+"cnandos&groupid="+$rootScope.countryFilter},{},function(data){
 			var base = crossfilter(data);
 			var result = base.dimension(function(fact){return fact.tagMap.tag_value;}).group().reduceSum(function(fact){return fact.value;}).top(Infinity);
 			var transformed = result.map(function( item ){
@@ -241,7 +241,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 	//overall browser
 	function getOverallBrowsers(){
 		var defer = $q.defer();
-		MetricService.query({params:"columnFamilyName=mc_groupmetric&metricname=pgsperbf"},{},function(data){
+		MetricService.query({params:"columnFamilyName=mc_groupmetric&metricname="+($rootScope.pageOrSession == 'Page' ? 'pgsper' :'vistsper')+"bf"},{},function(data){
 			var base = crossfilter(data);
 			var result = base.dimension(function(fact){return fact.groupId;}).group().reduceSum(function(fact){return fact.value;}).top(Infinity);
 			var transformed = result.map(function( item ){
@@ -259,8 +259,8 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 	//drill-downed browser
 	function getDrillDownedBrowsers(){
 		var defer = $q.defer();
-		// MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname=pgspercnandbf&groupid=Germany"},{},function(data){
-		MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname=pgspercnandbf&groupid="+$rootScope.countryFilter},{},function(data){
+		// MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname="+($rootScope.pageOrSession == 'Page' ? 'pgsper' :'vistsper')+"cnandbf&groupid=Germany"},{},function(data){
+		MetricService.query({params:"columnFamilyName=mc_countrygroupmetric&metricname="+($rootScope.pageOrSession == 'Page' ? 'pgsper' :'vistsper')+"cnandbf&groupid="+$rootScope.countryFilter},{},function(data){
 			var base = crossfilter(data);
 			var result = base.dimension(function(fact){return fact.tagMap.tag_value;}).group().reduceSum(function(fact){return fact.value;}).top(Infinity);
 			var transformed = result.map(function( item ){
@@ -297,9 +297,15 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 		if (pageOrSession == 'Page' ){
 			$rootScope.pageOrSession = 'Page';
 			getPageviewsWrapper();
+			getCountryWrapper();
+			getOsWrapper();
+			getBrowsersWrapper();
 		} else{
 			$rootScope.pageOrSession = 'Session';
 			getSessionWrapper();
+			getCountryWrapper();
+			getOsWrapper();
+			getBrowsersWrapper();
 		};
 	};
 	$scope.dirlldown = function( country ){
