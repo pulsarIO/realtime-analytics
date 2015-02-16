@@ -28,7 +28,6 @@ public class MetricProcessor extends AbstractEventProcessor {
     private static int GENERIC_MAX_POINT = 1;
     private static int PAGE_VIEWS_POINT = 30;
     private Map<String, Deque<DataPoint>> dataBuffer = new ConcurrentHashMap<String, Deque<DataPoint>>();
-    private volatile JetstreamEvent lastEvent;
     
     public WebSocketConnectionManager getWsConnectionManager() {
         return wsConnectionManager;
@@ -44,7 +43,6 @@ public class MetricProcessor extends AbstractEventProcessor {
     @Override
     public void sendEvent(JetstreamEvent event) throws EventException {
         incrementEventRecievedCounter();
-        lastEvent = event;
         String eventType = event.getEventType();
 
         Deque<DataPoint> dataByType = dataBuffer.get(eventType);

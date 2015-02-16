@@ -16,7 +16,7 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
     <properties>
         <m2eclipse.wtp.contextRoot>/</m2eclipse.wtp.contextRoot>
         <myjetty.version>9.2.2.v20140723</myjetty.version>
-        <jetstream.version>4.0.0-SNAPSHOT</jetstream.version>
+        <jetstream.version>4.0.0</jetstream.version>
     </properties>
     
     <build>
@@ -206,4 +206,18 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
             <version>4.1.4.RELEASE</version>
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>jetstream</id>
+            <url>http://nxrepository.corp.ebay.com/nexus/content/repositories/ebay.DataInfrastructureAndServices.jetstream.releases</url>
+        </repository>
+        <repository>
+            <id>jetstream-snapshots</id>
+            <url>http://nxrepository.corp.ebay.com/nexus/content/repositories/ebay.DataInfrastructureAndServices.jetstream.snapshots</url>
+        </repository>
+        <repository>
+            <id>nxraptor</id>
+            <url>http://nxraptor/content/repositories/releases</url>
+        </repository>
+    </repositories>
 </project>

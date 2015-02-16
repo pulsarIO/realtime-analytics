@@ -24,6 +24,7 @@
     <packaging>pom</packaging>
     <name>Demo</name>
     <modules>
+		<module>twittersample</module>
         <module>metricservice</module>
 		<module>metricUI</module>
     </modules>

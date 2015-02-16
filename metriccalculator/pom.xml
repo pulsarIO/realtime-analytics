@@ -14,7 +14,7 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
     <name>metriccalculator app</name>
 
     <properties>
-        <jetstream.version>4.0.0-SNAPSHOT</jetstream.version>
+        <jetstream.version>4.0.0</jetstream.version>
     </properties>
     
     <licenses>
@@ -147,18 +147,4 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
             <version>2.1.2</version>
         </dependency>
     </dependencies>
-     <repositories>
-        <repository>
-            <id>jetstream</id>
-            <url>http://nxrepository.corp.ebay.com/nexus/content/repositories/ebay.DataInfrastructureAndServices.jetstream.releases</url>
-        </repository>
-        <repository>
-            <id>jetstream-snapshots</id>
-            <url>http://nxrepository.corp.ebay.com/nexus/content/repositories/ebay.DataInfrastructureAndServices.jetstream.snapshots</url>
-        </repository>
-        <repository>
-            <id>nxraptor</id>
-            <url>http://nxraptor/content/repositories/releases</url>
-        </repository>
-    </repositories>
 </project> 

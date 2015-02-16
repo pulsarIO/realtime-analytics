@@ -5,10 +5,8 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
 */
 package com.ebay.pulsar.metric.controller;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
