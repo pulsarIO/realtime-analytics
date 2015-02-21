@@ -13,7 +13,7 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
     <name>metricservice app</name>
 
     <properties>
-        <jetstream.version>4.0.0</jetstream.version>
+        <jetstream.version>4.0.1</jetstream.version>
     </properties>
 
     <build>
