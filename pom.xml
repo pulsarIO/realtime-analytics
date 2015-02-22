@@ -18,10 +18,10 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ebay.pulsar</groupId>
-    <artifactId>PulsarIO</artifactId>
+    <artifactId>realtime-analytics</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
-    <name>PulsarIO pipeline</name>
+    <name>realtime-analytics pipeline</name>
 
     <modules>
         <module>collector</module>

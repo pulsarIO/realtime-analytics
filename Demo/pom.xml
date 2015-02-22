@@ -19,10 +19,10 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ebay.pulsar</groupId>
-    <artifactId>Demo</artifactId>
+    <artifactId>realtime-analytics-demo</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
-    <name>Demo</name>
+    <name>realtime-analytics pipeline demo</name>
     <modules>
 		<module>twittersample</module>
         <module>metricservice</module>
