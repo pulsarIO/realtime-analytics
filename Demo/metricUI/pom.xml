@@ -9,7 +9,7 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>metricUI</artifactId>
     <groupId>com.ebay.pulsar</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>metricUI</name>
 

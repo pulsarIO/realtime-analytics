@@ -8,7 +8,7 @@ Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE 
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <groupId>com.ebay.pulsar</groupId>
     <artifactId>metricservice</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <modelVersion>4.0.0</modelVersion>
     <name>metricservice app</name>
 
