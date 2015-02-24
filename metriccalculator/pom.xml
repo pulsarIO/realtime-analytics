@@ -19,11 +19,6 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     
     <licenses>
         <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-        <license>
             <name>GNU GENERAL PUBLIC LICENSE Version 2, June 1991</name>
             <url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
             <distribution>repo</distribution>
