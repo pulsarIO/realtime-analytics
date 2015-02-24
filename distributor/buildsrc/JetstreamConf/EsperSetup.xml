@@ -2,7 +2,7 @@
 <!--
 Pulsar
 Copyright (C) 2013-2015 eBay Software Foundation
-Dual licensed under the Apache 2.0 license and the GPL v2 license.  See LICENSE for full terms.
+Licensed under the GPL v2 license.  See LICENSE for full terms.
   -->
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
