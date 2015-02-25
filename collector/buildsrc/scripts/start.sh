@@ -7,7 +7,7 @@ export JETSTREAM_HOME=$(pwd)
 
 java \
     $JETSTREAM_JAVA_OPTS \
-    -Dpulsar.runtime.kafka.brokers="$PULSAR_KAFKA_BORKERS" \
+    -Dpulsar.runtime.kafka.brokers="$PULSAR_KAFKA_BROKERS" \
     -Djetstream.runtime.zkserver.host="$JETSTREAM_ZKSERVER_HOST" \
     -Djetstream.runtime.zkserver.port="$JETSTREAM_ZKSERVER_PORT" \
     -Djetstream.runtime.netmask="$JETSTREAM_NETMASK" \
