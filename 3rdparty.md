@@ -20,16 +20,16 @@
 
 1. Esper - http://esper.codehaus.org/about/license/license.html
 
-# JS framework and libraries
+# Demo dependencies
 
-# MIT License
+## MIT License
 
 1. AngularJS - https://angularjs.org/
 1. Bootstrap - http://getbootstrap.com/
 1. Jquery - http://jquery.com/
 1. MomentJS - http://momentjs.com/
 
-# BSD license
+## BSD license
 
 [License link](http://opensource.org/licenses/BSD-3-Clause)
 
@@ -41,3 +41,4 @@
 
 1. NVD3 - http://nvd3.org/
 1. Crossfilter - http://square.github.io/crossfilter/
+1. twitter4j - http://twitter4j.org/en/index.html
