@@ -29,6 +29,7 @@
         <module>sessionizer</module>
         <module>distributor</module>
         <module>metriccalculator</module>
+        <module>Demo</module>
     </modules>
 </project>
 
