@@ -13,7 +13,8 @@ import net.sf.uadetector.service.UADetectorServiceFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 public class DeviceEnrichmentUtil implements InitializingBean {
-    private static UserAgentStringParser parser;
+	
+    private UserAgentStringParser parser;
 
     private static final DeviceEnrichmentUtil INSTANCE = new DeviceEnrichmentUtil();
 
@@ -31,7 +32,11 @@ public class DeviceEnrichmentUtil implements InitializingBean {
     }
 
     public static DeviceInfo getDeviceInfo(String userAgent) {
-        DeviceInfo deviceInfo = new DeviceInfo();
+        return getInstance()._getDeviceInfo(userAgent);
+    }
+    
+    private DeviceInfo _getDeviceInfo(String userAgent) {
+    	DeviceInfo deviceInfo = new DeviceInfo();
         if (userAgent == null) {
             return deviceInfo;
         }

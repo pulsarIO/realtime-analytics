@@ -22,7 +22,7 @@ import com.maxmind.geoip2.record.Subdivision;
 public class GeoEnrichmentUtil implements InitializingBean {
 
     private String geoDBFilePath;
-    private static DatabaseReader reader;
+    private DatabaseReader reader;
 
     private static final GeoEnrichmentUtil INSTANCE = new GeoEnrichmentUtil();
 
@@ -41,7 +41,11 @@ public class GeoEnrichmentUtil implements InitializingBean {
     }
 
     public static GeoInfo getGeoInfo(String ipAddress) {
-        GeoInfo geoInfo = new GeoInfo();
+    	return getInstance()._getGeoInfo(ipAddress);
+    }
+    
+    private GeoInfo _getGeoInfo(String ipAddress) {
+    	GeoInfo geoInfo = new GeoInfo();
         if (ipAddress == null) {
             return geoInfo;
         }
