@@ -141,9 +141,9 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         </property>
     </bean>
     
-    <bean id="DeviceEnrichmentUtil" class="com.ebay.pulsar.collector.udf.DeviceEnrichmentUtil" />
+    <bean id="DeviceEnrichmentUtil" class="com.ebay.pulsar.collector.udf.DeviceEnrichmentUtil" factory-method="getInstance"/>
     
-    <bean id="GeoEnrichmentUtil" class="com.ebay.pulsar.collector.udf.GeoEnrichmentUtil" >
+    <bean id="GeoEnrichmentUtil" class="com.ebay.pulsar.collector.udf.GeoEnrichmentUtil" factory-method="getInstance">
         <property name="geoDBFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/geodb/GeoLite2-City.mmdb" />
     </bean>
     
