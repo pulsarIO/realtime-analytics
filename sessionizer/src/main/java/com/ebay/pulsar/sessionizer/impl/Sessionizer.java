@@ -356,6 +356,11 @@ public class Sessionizer {
             sessionEndEvent.putAll(initialAttributes);
         }
 
+        Map<String, Object> dynamicAttributes = session.getDynamicAttributes();
+        if (dynamicAttributes != null) {
+            sessionEndEvent.putAll(dynamicAttributes);
+        }        
+        
         session.setSessionId(concatTimestamp(identifier, session.getFirstEventTimestamp()));
 
         if (mainSessionProfile.getSessionIdKey() != null) {
