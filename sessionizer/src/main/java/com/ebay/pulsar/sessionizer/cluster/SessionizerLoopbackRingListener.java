@@ -14,17 +14,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.context.ApplicationListener;
 
 import com.ebay.jetstream.common.ShutDownable;
+import com.ebay.jetstream.config.ContextBeanChangedEvent;
 import com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress;
 import com.ebay.jetstream.messaging.topic.JetstreamTopic;
 import com.ebay.jetstream.messaging.transport.netty.eventconsumer.EventConsumer;
 import com.ebay.jetstream.messaging.transport.netty.eventproducer.EventConsumerInfo;
 import com.ebay.jetstream.messaging.transport.netty.eventscheduler.ConsistentHashingRingUpdateListener;
 import com.ebay.jetstream.messaging.transport.netty.schedulingalgorithm.consistenthashing.ConsistentHashing;
+import com.ebay.jetstream.spring.beans.factory.BeanChangeAware;
 import com.ebay.jetstream.xmlser.XSerializable;
 import com.ebay.pulsar.sessionizer.impl.SessionizerProcessor;
 
@@ -35,7 +38,7 @@ import com.ebay.pulsar.sessionizer.impl.SessionizerProcessor;
  *
  */
 public class SessionizerLoopbackRingListener
-implements ConsistentHashingRingUpdateListener, ClusterManager, XSerializable, ShutDownable {
+implements ConsistentHashingRingUpdateListener, ClusterManager, XSerializable, ShutDownable, BeanChangeAware, ApplicationListener<ContextBeanChangedEvent> {
     private class ConsistentHashingState {
         private final ConsistentHashing<EventConsumerInfo> chState;
         private final long effectiveTime;
@@ -86,6 +89,7 @@ implements ConsistentHashingRingUpdateListener, ClusterManager, XSerializable, S
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionizerLoopbackRingListener.class);
     
     private JetstreamTopic loopbackTopic;
+    private MessagingChannelAddress loopbackChannelAddress;
 
     public static final long GRACE_PERIOD = 5 * 60 * 1000;
 
@@ -220,9 +224,18 @@ implements ConsistentHashingRingUpdateListener, ClusterManager, XSerializable, S
         return currentInfo == null || currentInfo.getAdvertisement().getConsumerId() == getHostId();
     }
 
+    @Override
+    public void onApplicationEvent(ContextBeanChangedEvent event) {
+        if (event.isChangedBean(loopbackChannelAddress)) {
+            setLoopbackChannelAddress((MessagingChannelAddress) event.getChangedBean());
+        }
+    }
+    
     public void setLoopbackChannelAddress(MessagingChannelAddress loopbackChannelAddress) {
         if (loopbackChannelAddress != null && loopbackChannelAddress.getChannelJetstreamTopics().size() == 1) {
             loopbackTopic = loopbackChannelAddress.getChannelJetstreamTopics().get(0);
+            LOGGER.info("Loopback topic is {}", loopbackTopic);
+            this.loopbackChannelAddress = loopbackChannelAddress;
         } else {
             throw new IllegalArgumentException("Loopback address can only have one topic");
         }
@@ -314,4 +327,5 @@ implements ConsistentHashingRingUpdateListener, ClusterManager, XSerializable, S
     public long getHostId() {
         return EventConsumer.getConsumerId();
     }
+
 }
