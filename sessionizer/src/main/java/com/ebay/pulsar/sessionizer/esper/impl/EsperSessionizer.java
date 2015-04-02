@@ -427,14 +427,14 @@ public class EsperSessionizer {
         addPlugInSingleRowFunction("fromJson", "com.ebay.jetstream.epl.EPLUtils", "fromJsonString");
 
         esperService.getEPAdministrator().getConfiguration().
-        addVariable(VAR_SESSION_NAME, SessionVariable.class.getName(), sessionVariable, true);
+        addVariable(VAR_SESSION_NAME, SessionVariable.class.getName(), sessionVariable, false);
         esperService.getEPAdministrator().getConfiguration().
-        addVariable(VAR_METADATA_NAME, AttributeMapVariable.class.getName(), metadataVariable, true);
+        addVariable(VAR_METADATA_NAME, AttributeMapVariable.class.getName(), metadataVariable, false);
         if (!isMainSessionizer) {
             esperService.getEPAdministrator().getConfiguration().
-            addVariable(VAR_PARENT_SESSION_NAME, SessionVariable.class.getName(), parentSessionVariable, true);
+            addVariable(VAR_PARENT_SESSION_NAME, SessionVariable.class.getName(), parentSessionVariable, false);
             esperService.getEPAdministrator().getConfiguration().
-            addVariable(VAR_PARENT_METADATA_NAME, AttributeMapVariable.class.getName(), parentMetadataVariable, true);
+            addVariable(VAR_PARENT_METADATA_NAME, AttributeMapVariable.class.getName(), parentMetadataVariable, false);
         }
 
 
