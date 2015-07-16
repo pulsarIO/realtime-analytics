@@ -310,7 +310,8 @@ public class Simulator extends AbstractEventProcessor implements
 		String payload7 = payload6.replace("${campaignName}", "Campaign - " + String.valueOf(random.nextInt(20)));
 		String payload8 = payload7.replace("${cmapaignGMV}", String.valueOf(((double)random.nextInt(100000)*7)/100.00));
 		String payload9 = payload8.replace("${cmapaignQuantity}", String.valueOf(random.nextInt(100)));
-		return payload9;
+		String payload10 = payload9.replace("${timestamp}", String.valueOf(System.currentTimeMillis());
+		return payload10;
 	}
 
 	private void initGUIDList() {
