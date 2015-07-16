@@ -13,6 +13,5 @@
     "itmP":${itmPrice},
     "cap":"${campaignName}",
     "capG":${cmapaignGMV},
-    "capQ":${cmapaignQuantity},
-    "timestamp":${timestamp}
+    "capQ":${cmapaignQuantity}
 }
