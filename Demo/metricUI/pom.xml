@@ -206,18 +206,4 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             <version>4.1.4.RELEASE</version>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>jetstream</id>
-            <url>http://nxrepository.corp.ebay.com/nexus/content/repositories/ebay.DataInfrastructureAndServices.jetstream.releases</url>
-        </repository>
-        <repository>
-            <id>jetstream-snapshots</id>
-            <url>http://nxrepository.corp.ebay.com/nexus/content/repositories/ebay.DataInfrastructureAndServices.jetstream.snapshots</url>
-        </repository>
-        <repository>
-            <id>nxraptor</id>
-            <url>http://nxraptor/content/repositories/releases</url>
-        </repository>
-    </repositories>
 </project>
