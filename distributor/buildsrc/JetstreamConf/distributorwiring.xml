@@ -105,6 +105,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         <property name="channelTopics">
             <list>
                 <value>Pulsar.mobile</value>
+                <value>Pulsar.sess</value>
             </list>
         </property>
     </bean>
