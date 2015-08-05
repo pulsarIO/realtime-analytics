@@ -1,6 +1,6 @@
 FROM java:openjdk-7-jdk
 
-ENV project_version 1.0.0
+ENV project_version 1.0.1
 ENV project_name replay
 
 COPY target/${project_name}-${project_version}-bin.tar.gz /opt/app/${project_name}-${project_version}-bin.tar.gz

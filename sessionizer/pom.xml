@@ -9,12 +9,12 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
 
     <groupId>com.ebay.pulsar</groupId>
     <artifactId>sessionizer</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <modelVersion>4.0.0</modelVersion>
     <name>sessionizer app</name>
 
     <properties>
-        <jetstream.version>4.0.2</jetstream.version>
+        <jetstream.version>4.1.0</jetstream.version>
     </properties>
     
     <licenses>
