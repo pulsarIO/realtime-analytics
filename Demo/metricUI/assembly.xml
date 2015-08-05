@@ -55,6 +55,10 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             <includes>
                 <include>*.jar</include>
             </includes>
+            <excludes>
+                <exclude>*-javadoc.jar</exclude>
+                <exclude>*-sources.jar</exclude>
+            </excludes>
         </fileSet>
         
          <fileSet>
