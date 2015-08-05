@@ -48,7 +48,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                                 class="com.ebay.jetstream.messaging.transport.netty.config.NettyContextConfig">
                                 <property name="contextname"
                                     value="Pulsar.Report" />
-                                <property name="port" value="15610" />
+                                <property name="port" value="#{T(java.lang.Integer).parseInt(systemProperties['jetstream.context.baseport'] ?: '15610') + 0}" />
                             </bean>
                         </list>
                     </property>

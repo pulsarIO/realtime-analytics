@@ -44,7 +44,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                                 class="com.ebay.jetstream.messaging.transport.netty.config.NettyContextConfig">
                                 <property name="contextname"
                                     value="Pulsar.MC" />
-                                <property name="port" value="15599" />
+                                <property name="port" value="#{T(java.lang.Integer).parseInt(systemProperties['jetstream.context.baseport'] ?: '15599') + 0}" />
                             </bean>
                         </list>
                     </property>
@@ -80,7 +80,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                                 class="com.ebay.jetstream.messaging.transport.netty.config.NettyContextConfig">
                                 <property name="contextname"
                                     value="Pulsar.FirstMC" />
-                                <property name="port" value="15600" />
+                                <property name="port" value="#{T(java.lang.Integer).parseInt(systemProperties['jetstream.context.baseport'] ?: '15599') + 1}" />
                                 <property name="scheduler"
                                     ref="consistenthashingaffinityscheduler" />
                             </bean>
@@ -118,7 +118,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                                 class="com.ebay.jetstream.messaging.transport.netty.config.NettyContextConfig">
                                 <property name="contextname"
                                     value="Pulsar.Report" />
-                                <property name="port" value="15601" />
+                                <property name="port" value="#{T(java.lang.Integer).parseInt(systemProperties['jetstream.context.baseport'] ?: '15599') + 2}" />
                             </bean>
                         </list>
                     </property>
