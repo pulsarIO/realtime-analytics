@@ -74,13 +74,16 @@ import com.ebay.pulsar.sessionizer.util.Constants;
 @ManagedResource(objectName = "Event/Processor", description = "Sessionizer")
 public class SessionizerProcessor extends AbstractEventProcessor implements RemoteStoreCallback {
 
-    
-    
     private class LeakedRemoteSessionChecker implements Runnable {
         @Override
         public void run() {
             if (!timerFlag.get()) {
                 return;
+            }
+            if (TimeUnit.MILLISECONDS.convert(System.nanoTime() - lastRemoteCheckNanoTime, TimeUnit.NANOSECONDS) < 30000) {
+                return; // Avoid it be executed many times when there is a big GC pause
+            } else {
+                lastRemoteCheckNanoTime = System.nanoTime();
             }
             try {
                 RemoteStoreProvider l = provider;
@@ -97,6 +100,11 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
         public void run() {
             if (!timerFlag.get()) {
                 return;
+            }
+            if (TimeUnit.MILLISECONDS.convert(System.nanoTime() - lastSessionExpirationNanoTime, TimeUnit.NANOSECONDS) < 500) {
+                return; // Avoid it is executed many times when there is a big GC pause
+            } else {
+                lastSessionExpirationNanoTime = System.nanoTime();
             }
             try {
                 for (BlockingQueue<JetstreamEvent> q : requestQueues) {
@@ -176,6 +184,9 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
     }
 
     private List<SessionizerExtension> extensions;
+    private long lastRemoteCheckNanoTime = System.nanoTime();
+    private long lastSessionExpirationNanoTime = System.nanoTime();
+    private static final long EXPIREDINFO_CACHE_INTERVAL = TimeUnit.NANOSECONDS.convert(4, TimeUnit.SECONDS);  // 4 secs
 
     public void setExtensions(List<SessionizerExtension> extensions) {
         this.extensions = extensions;
@@ -210,6 +221,9 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
         private long maxEventsSentPerSecond;
 
         private final Map<String, PendingEventHolder> pendingReadEvents = new LinkedHashMap<String, PendingEventHolder>();
+        // A cache to avoid send session end event twice for recovered session
+        // A recovered session may be loaded by multiple nodes, and if no new events comes, the instances will be ended at same time. 
+        private final Map<String, String> recentlyExpiredSessions = new LinkedHashMap<String, String>(); 
         private Map<Integer, Sessionizer> sessionTypeToSessionerMap = new HashMap<Integer, Sessionizer>();
         private Map<String, Sessionizer> sessionizerMap = new HashMap<String, Sessionizer>();
         private final BlockingQueue<JetstreamEvent> requestQueue;
@@ -275,7 +289,7 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
                     SessionizationInfo info = (SessionizationInfo) firstEvent.remove(CURRENT_SESSIOIZERINFO);
                     handleRawEvent(uid, identifier, null, firstEvent, sessionizer, info);
                 } else if (Constants.EVENT_TYPE_SESSION_TRANSFERED_EVENT.equals(firstEvent.getEventType())) {
-                    Session session = reconstructSession(firstEvent, uid);
+                    Session session = (Session) firstEvent.get(Constants.EVENT_PAYLOAD_SESSION_OBJ);
                     if (session != null) {
                         updateRemoteSession(uid, identifier, session, sessionizer);
                     }
@@ -303,6 +317,22 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
             }
         }
 
+        private void cleanRecentlyExpiredCache() {
+            if (recentlyExpiredSessions.isEmpty()) {
+                return;
+            }
+            long currentNanoTime = System.nanoTime();
+            Iterator<Entry<String, String>> iter = recentlyExpiredSessions.entrySet().iterator();
+            while (iter.hasNext()) {
+                Entry<String, String> entry = iter.next();
+                long sysNanoTime = Long.parseLong(entry.getValue().split(":")[0]);
+                if (currentNanoTime - sysNanoTime <= EXPIREDINFO_CACHE_INTERVAL) {
+                    break;
+                }
+                iter.remove();
+            }
+        }
+
         private void expiredTimeoutSessions(JetstreamEvent event) {
             if (TIMER_EVENT == event) {
                 int pending = this.requestQueue.size();
@@ -320,10 +350,12 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
                     maxEventsSentPerSecond = eventSentInLastSecond;
                 }
                 eventSentInCurrentSecond = 0;
+                cleanRecentlyExpiredCache();
                 checkTimeOutPendingRequests();
             } else {
                 hasPendingExpiration = false;
             }
+            long currentNanoTime = System.nanoTime();
             long timestamp = System.currentTimeMillis();
             if (event == CONTINUE_EXPIRATION_EVENT || !hasPendingExpiration) {
                 int count = 0;
@@ -337,6 +369,9 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
                         sessionizer.checkSubSessions(identifier, session, ts);
                         if (session.getExpirationTime() <= ts) {
                             sessionizer.sessionEnd(identifier, session);
+                            if (clusterManager.isOwnershipChangedRecently(session.getAffinityKey())) {
+                                recentlyExpiredSessions.put(session.getSessionId(), currentNanoTime + ":" + session.getExpirationTime());
+                            }
                             RemoteStoreProvider remoteDAO = provider;
                             if (remoteDAO != null) {
                                 remoteDAO.delete(session, uid);
@@ -553,6 +588,25 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
 
         private void handleTransferedSession(String identifier, String uid, JetstreamEvent event, Sessionizer sessionizer) {
             String ak = (String) event.get(AFFINITY_KEY);
+            Session transferInSession = reconstructSession(event, uid);
+            if (transferInSession == null) {
+                return;
+            }
+            
+            event.put(Constants.EVENT_PAYLOAD_SESSION_OBJ, transferInSession);
+            
+            sessionizer.updateSessionId(transferInSession);
+            
+            // Double check whether the transfered session expired recently.
+            // If a transfered in session is expired and also expired by current node recently
+            // It must be a double loaded session.
+            if (transferInSession.getExpirationTime() <= System.currentTimeMillis()
+                    && recentlyExpiredSessions.containsKey(transferInSession.getSessionId())) {
+                String s = recentlyExpiredSessions.get(transferInSession.getSessionId());
+                if (Long.parseLong(s.split(":")[1]) == transferInSession.getExpirationTime()) {
+                    return;
+                }
+            }
             Session localSession = localSessionCache.get(uid);
             if (localSession == null && !pendingReadEvents.containsKey(uid)) {
                 RemoteStoreProvider remoteDAO = provider;
@@ -561,12 +615,11 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
                 } else if (remoteDAO != null) {
                     Session session = remoteDAO.load(uid);
                     if (session == null) {
-                        session = reconstructSession(event, uid);
+                        session = transferInSession;
                         if (session != null) {
                             updateRemoteSession(uid, identifier, session, sessionizer);
                         }
                     } else {
-                        Session transferInSession = reconstructSession(event, uid);
                         if (session.getFirstEventTimestamp() != transferInSession.getFirstEventTimestamp()) {
                             // The transfered session will be some session created during the consistent hash ring change.
                             // The session key should not exist on remote since it can not be found.
@@ -576,19 +629,15 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
                         }
                     }
                 } else {
-                    Session session = reconstructSession(event, uid);
-                    if (session != null) {
-                        updateRemoteSession(uid, identifier, session, sessionizer);
-                    }
+                    updateRemoteSession(uid, identifier, transferInSession, sessionizer);
                 }
             } else if (localSession != null) {
-                Session session = reconstructSession(event, uid);
-                if (session != null && session.getFirstEventTimestamp() != localSession.getFirstEventTimestamp()) {
+                if (transferInSession.getFirstEventTimestamp() != localSession.getFirstEventTimestamp()) {
                     // The transfered session should be overwrite by the local session
                     // And the remote session will be cleaned by this local session if it create concurrently.
-                    session.setIdentifier(identifier);
-                    session.setType(sessionizer.getType());
-                    fireSessionEndMarkerEvent(session, sessionizer);
+                    transferInSession.setIdentifier(identifier);
+                    transferInSession.setType(sessionizer.getType());
+                    fireSessionEndMarkerEvent(transferInSession, sessionizer);
                 }
             }
         }
@@ -823,12 +872,12 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
                 }
             } else if (Constants.EVENT_TYPE_SESSION_TRANSFERED_EVENT.equals(firstEvent.getEventType())) {
                 if (session == null) {
-                    session = reconstructSession(firstEvent, uid);
+                    session = (Session) firstEvent.get(Constants.EVENT_PAYLOAD_SESSION_OBJ);
                     if (session != null && updateRemoteSession(uid, identifier, session, sessionizer)) {
                         session = null;
                     }
                 } else {
-                    Session transferInSession = reconstructSession(firstEvent, uid);
+                    Session transferInSession = (Session) firstEvent.get(Constants.EVENT_PAYLOAD_SESSION_OBJ);
                     if (transferInSession != null && transferInSession.getFirstEventTimestamp() != session.getFirstEventTimestamp()) {
                         transferInSession.setIdentifier(identifier);
                         transferInSession.setType(sessionizer.getType());
@@ -1108,8 +1157,8 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
         }
 
         timer = Executors.newScheduledThreadPool(2, new NameableThreadFactory("SessionizerTimer"));
-        timer.scheduleWithFixedDelay(new LocalExpirationChecker(), 1000, 1000, TimeUnit.MILLISECONDS);
-        timer.scheduleWithFixedDelay(new LeakedRemoteSessionChecker(), 60000, 60000, TimeUnit.MILLISECONDS);
+        timer.scheduleAtFixedRate(new LocalExpirationChecker(), 1000, 1000, TimeUnit.MILLISECONDS);
+        timer.scheduleAtFixedRate(new LeakedRemoteSessionChecker(), 60000, 60000, TimeUnit.MILLISECONDS);
     }
 
     public boolean checkRemoteProvider(Class<?> clazz) {
@@ -1737,6 +1786,7 @@ public class SessionizerProcessor extends AbstractEventProcessor implements Remo
     }
 
     public Session reconstructSession(JetstreamEvent event, String uid) {
+
         Session session = new Session();
         byte[] payload = (byte[]) event.get(Constants.EVENT_PAYLOAD_SESSION_PAYLOAD);
         if (payload == null) {
