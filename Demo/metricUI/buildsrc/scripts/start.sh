@@ -33,6 +33,7 @@ fi
 
 java \
     $JETSTREAM_JAVA_OPTS \
+    -Djetstream.rest.baseport="${JETSTREAM_REST_BASEPORT:-8088}" \
     -Djetstream.context.baseport="${JETSTREAM_CONTEXT_BASEPORT:-15610}" \
     -Djetstream.runtime.zkserver.host="${JETSTREAM_ZKSERVER_HOST:-127.0.0.1}" \
     -Djetstream.runtime.zkserver.port="${JETSTREAM_ZKSERVER_PORT:-2181}" \

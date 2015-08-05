@@ -22,5 +22,9 @@ ENV JETSTREAM_MONGOURL mongo://mongoserver:27017/config
 #Suggested production JAVA_OPS for Open JDK.
 #ENV JETSTREAM_JAVA_OPTS -server -Xms6g -Xmx6g -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+UseCompressedOops -X:MaxTenuringThreshold=8 -XX:CMSInitiatingOccupancyFraction=75 -XX:MaxNewSize=3g -XX:NewSize=3g -XX:+CMSConcurrentMTEnabled -XX:+CMSScavengeBeforeRemark 
 
+# One context port
+ENV JETSTREAM_CONTEXT_BASEPORT 15591
+ENV JETSTREAM_APP_PORT 9999
+
 EXPOSE 9999
 ENTRYPOINT ./start.sh

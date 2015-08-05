@@ -11,7 +11,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     default-lazy-init="true">
     
     <bean id="MetricServer" class="com.ebay.pulsar.metric.server.MetricServer" lazy-init="false">
-        <property name="port" value="8088"/>
+        <property name="port" value="#{T(java.lang.Integer).parseInt(systemProperties['jetstream.rest.baseport'] ?: '8088') + 0}"/>
     </bean>
 
     <bean id="SystemPropertiesConfiguration"
