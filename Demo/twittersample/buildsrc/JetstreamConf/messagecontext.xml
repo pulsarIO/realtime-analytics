@@ -42,7 +42,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                             <bean
                                 class="com.ebay.jetstream.messaging.transport.netty.config.NettyContextConfig">
                                 <property name="contextname" value="Pulsar.MC" />
-                                <property name="port" value="#{T(java.lang.Integer).parseInt(systemProperties['jetstream.context.baseport'] ?: '15591') + 0}" />
+                                <property name="port" value="#{T(java.lang.Integer).parseInt(systemProperties['jetstream.context.baseport'] ?: '15590') + 0}" />
                             </bean>
                         </list>
                     </property>
