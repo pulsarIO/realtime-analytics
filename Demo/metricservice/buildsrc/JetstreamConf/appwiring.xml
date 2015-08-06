@@ -11,7 +11,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     default-lazy-init="false">
     
     <bean id="NettyHttpServerConfig" class="com.ebay.jetstream.http.netty.server.HttpServerConfig">
-        <property name="port" value="8083" />
+        <property name="port" value="#{T(java.lang.Integer).parseInt(systemProperties['jetstream.rest.baseport'] ?: '8083') + 0}" />
         <property name="maxWorkQueueSz" value="100000" />
         <property name="servletExecutorThreads" value="1" />
         <property name="numIOWorkers" value="1" />

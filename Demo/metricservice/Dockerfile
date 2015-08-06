@@ -1,6 +1,6 @@
 FROM java:openjdk-7-jdk
 
-ENV project_version 1.0.0
+ENV project_version 1.0.1
 ENV project_name metricservice
 
 COPY target/${project_name}-${project_version}-bin.tar.gz /opt/app/${project_name}-${project_version}-bin.tar.gz
@@ -19,6 +19,10 @@ ENV JETSTREAM_ZKSERVER_HOST zkserver
 ENV JETSTREAM_ZKSERVER_PORT 2181
 ENV JETSTREAM_MONGOURL mongo://mongoserver:27017/config
 ENV PULSAR_CASSANDRA cassandraserver
+
+# One http port, no context port
+ENV JETSTREAM_REST_BASEPORT 8083
+ENV JETSTREAM_APP_PORT 9999
 
 EXPOSE 8083 9999
 ENTRYPOINT ./start.sh

@@ -454,4 +454,8 @@ public class Sessionizer {
             mainEsperSessionizer.process(session, event);
         }
     }
+
+    public void updateSessionId(Session session) {
+        session.setSessionId(concatTimestamp(session.getIdentifier(), session.getFirstEventTimestamp()));
+    }
 }

@@ -1,6 +1,6 @@
 FROM java:openjdk-7-jdk
 
-ENV project_version 1.0.0
+ENV project_version 1.0.1
 ENV project_name replay
 
 COPY target/${project_name}-${project_version}-bin.tar.gz /opt/app/${project_name}-${project_version}-bin.tar.gz
@@ -21,6 +21,10 @@ ENV JETSTREAM_ZKSERVER_PORT 2181
 ENV JETSTREAM_MONGOURL mongo://mongoserver:27017/config
 ENV PULSAR_KAFKA_ZK kafkaserver:2181
 ENV PULSAR_KAFKA_BROKERS kafkaserver:9092
+
+# Three Context ports, actually not used
+ENV JETSTREAM_CONTEXT_BASEPORT 15590
+ENV JETSTREAM_APP_PORT 9999
 
 EXPOSE 9999 
 ENTRYPOINT ./start.sh

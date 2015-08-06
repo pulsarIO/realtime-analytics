@@ -8,12 +8,12 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <groupId>com.ebay.pulsar</groupId>
     <artifactId>metricservice</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <modelVersion>4.0.0</modelVersion>
     <name>metricservice app</name>
 
     <properties>
-        <jetstream.version>4.0.2</jetstream.version>
+        <jetstream.version>4.1.0</jetstream.version>
     </properties>
 
     <build>
