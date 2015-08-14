@@ -54,25 +54,23 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         </developer>
     </developers>
 
-	<scm>
-		<connection>scm:git:git@github.com:pulsarIO/realtime-analytics.git</connection>
-		<url>scm:git:git@github.com:pulsarIO/realtime-analytics.git</url>
-		<developerConnection>scm:git:git@github.com:pulsarIO/realtime-analytics.git</developerConnection>
+    <scm>
+        <connection>scm:git:git@github.com:pulsarIO/realtime-analytics.git</connection>
+        <url>scm:git:git@github.com:pulsarIO/realtime-analytics.git</url>
+        <developerConnection>scm:git:git@github.com:pulsarIO/realtime-analytics.git</developerConnection>
         <tag>realtime-analytics-root-1.0.1</tag>
-  	</scm>
-    
-    <modules>
-        <module>collector</module>
-        <module>replay</module>
-        <module>sessionizer</module>
-        <module>distributor</module>
-        <module>metriccalculator</module>
-        <module>Demo</module>
-    </modules>
+    </scm>
     
     <profiles>
         <profile>
             <id>release</id>
+            <modules>
+                <module>collector</module>
+                <module>replay</module>
+                <module>sessionizer</module>
+                <module>distributor</module>
+                <module>metriccalculator</module>
+            </modules>
             <distributionManagement>
                 <snapshotRepository>
                     <id>ossrh</id>
@@ -138,6 +136,20 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>collector</module>
+                <module>replay</module>
+                <module>sessionizer</module>
+                <module>distributor</module>
+                <module>metriccalculator</module>
+                <module>Demo</module>
+            </modules>
         </profile>
     </profiles>
 </project>
