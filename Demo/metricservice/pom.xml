@@ -6,15 +6,16 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>com.ebay.pulsar</groupId>
+		<artifactId>realtime-analytics</artifactId>
+		<version>1.0.1</version>
+		<relativePath>../..</relativePath>
+	</parent>
     <groupId>com.ebay.pulsar</groupId>
     <artifactId>metricservice</artifactId>
-    <version>1.0.1</version>
     <modelVersion>4.0.0</modelVersion>
     <name>metricservice app</name>
-
-    <properties>
-        <jetstream.version>4.1.0</jetstream.version>
-    </properties>
 
     <build>
         <plugins>
@@ -47,6 +48,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                             <descriptors>
                                 <descriptor>assembly.xml</descriptor>
                             </descriptors>
+                            <attach>false</attach>
                             <finalName>${project.artifactId}-${project.version}</finalName>
                         </configuration>
                     </execution>

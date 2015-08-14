@@ -6,17 +6,22 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>com.ebay.pulsar</groupId>
+		<artifactId>realtime-analytics</artifactId>
+		<version>1.0.1</version>
+		<relativePath>../..</relativePath>
+	</parent>
+    
     <modelVersion>4.0.0</modelVersion>
     <artifactId>metricUI</artifactId>
     <groupId>com.ebay.pulsar</groupId>
-    <version>1.0.1</version>
     <packaging>jar</packaging>
     <name>metricUI</name>
 
     <properties>
         <m2eclipse.wtp.contextRoot>/</m2eclipse.wtp.contextRoot>
         <myjetty.version>9.2.2.v20140723</myjetty.version>
-        <jetstream.version>4.1.0</jetstream.version>
     </properties>
     
     <build>
@@ -50,6 +55,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                             <descriptors>
                                 <descriptor>assembly.xml</descriptor>
                             </descriptors>
+                            <attach>false</attach>
                             <finalName>${project.artifactId}-${project.version}</finalName>
                         </configuration>
                     </execution>
