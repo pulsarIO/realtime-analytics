@@ -9,7 +9,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ebay.pulsar</groupId>
     <artifactId>realtime-analytics</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>realtime-analytics pipeline</name>
     <description>Pulsar realtime analytics</description>
@@ -58,7 +58,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         <connection>scm:git:git@github.com:pulsarIO/realtime-analytics.git</connection>
         <url>scm:git:git@github.com:pulsarIO/realtime-analytics.git</url>
         <developerConnection>scm:git:git@github.com:pulsarIO/realtime-analytics.git</developerConnection>
-        <tag>realtime-analytics-root-1.0.1</tag>
+        <tag>HEAD</tag>
     </scm>
     
     <profiles>
