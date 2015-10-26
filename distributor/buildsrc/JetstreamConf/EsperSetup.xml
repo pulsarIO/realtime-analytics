@@ -33,6 +33,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             value="com.ebay.jetstream.event.processor.esper.JetstreamExceptionHandlerFactory" />
         <property name="autoImport">
             <list>
+               <value>com.ebay.pulsar.distributor.epl.func.*</value>
             </list>
         </property>
     </bean>
@@ -56,7 +57,31 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                             <entry key="rf" value="java.lang.String" />
                             <entry key="et" value="java.lang.String" />
                             <entry key="user" value="java.lang.String" />
-                            <entry key="url" value="java.lang.String" />
+							<entry key="itmP"  value="java.lang.String" />
+							<entry key="cap"  value="java.lang.String" />
+							<entry key="js_ev_mak"  value="java.lang.String" />
+							<entry key="_con"  value="java.lang.String" />
+							<entry key="_dd_bv"  value="java.lang.String" />
+							<entry key="_dd_osv"  value="java.lang.String" />
+							<entry key="itmT"  value="java.lang.String" />
+							<entry key="_dd_os"  value="java.lang.String" />
+							<entry key="capG"  value="java.lang.String" />
+							<entry key="_lon"  value="java.lang.String" />
+							<entry key="_lat"  value="java.lang.String" />
+							<entry key="_tlcn"  value="java.lang.String" />
+							<entry key="url"  value="java.lang.String" />
+							<entry key="_rgn"  value="java.lang.String" />
+							<entry key="_cn"  value="java.lang.String" />
+							<entry key="capQ"  value="java.lang.String" />
+							<entry key="_dd_dc"  value="java.lang.String" />
+							<entry key="ac"  value="java.lang.String" />
+							<entry key="_cty"  value="java.lang.String" />
+							<entry key="_dd_d"  value="java.lang.String" />
+							<entry key="_dwell"  value="java.lang.Long" />
+							<entry key="t"  value="java.lang.String" />
+							<entry key="ts"  value="java.lang.String" />
+              				<entry key="_dd_bf"  value="java.lang.String" />
+              				<entry key="dd_df"  value="java.lang.String" />
                         </map>
                     </property>
                 </bean>
@@ -65,7 +90,31 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                     <property name="eventAlias" value="SessionEndEvent" />
                     <property name="eventFields">
                         <map>
-                            <entry key="_snid" value="java.lang.String" />
+                       		<entry key="snid" value="java.lang.String"/>
+							<entry key="snev" value="java.lang.Integer"/>
+							<entry key="sndn" value="java.lang.Long"/>
+							<entry key="_snid" value="java.lang.String"/>
+							<entry key="si" value="java.lang.String"/>							
+							<entry key="_snec" value="java.lang.Integer"/>
+							<entry key="_sndn" value="java.lang.Long"/>
+							<entry key="_snet" value="java.lang.Long"/>
+							<entry key="ac"  value="java.lang.String" />
+							<entry key="t"  value="java.lang.String" />
+							<entry key="ts"  value="java.lang.String" />
+							<entry key="_dd_bv"  value="java.lang.String" />
+							<entry key="_dd_bf"  value="java.lang.String" />
+							<entry key="_dd_dc"  value="java.lang.String" />
+							<entry key="_dd_osv"  value="java.lang.String" />
+							<entry key="_dd_os"  value="java.lang.String" />
+							<entry key="_dd_d"  value="java.lang.String" />
+							<entry key="_cty"  value="java.lang.String" />
+							<entry key="_rgn"  value="java.lang.String" />
+							<entry key="_con"  value="java.lang.String" />
+							<entry key="_cn"  value="java.lang.String" />
+							<entry key="_tlcn"  value="java.lang.String" />
+							<entry key="_lon"  value="java.lang.String" />
+							<entry key="_lat"  value="java.lang.String" />
+              				<entry key="dd_df"  value="java.lang.String" />							
                         </map>
                     </property>
                 </bean>

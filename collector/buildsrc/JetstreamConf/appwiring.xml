@@ -152,6 +152,9 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
 		<property name="ipFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/ip.txt" />
 		<property name="uaFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/userAgent.txt" />
 		<property name="itmFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/item.txt" />
+		<property name="tsFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/ts.txt" />
+		<property name="siteFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/site.txt" />
+		<property name="dsFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/device.txt" />
 		<property name="siCount" value="100" />
 		<property name="minVolume" value="2" />
 		<property name="peakTimes" value="30" />

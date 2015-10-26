@@ -44,6 +44,9 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                             <entry key="_dd_bf" value="java.lang.String" />
                             <entry key="_dd_d" value="java.lang.String" />
                             <entry key="_dd_bv" value="java.lang.String" />
+							<entry key="t"  value="java.lang.String" />
+							<entry key="ts"  value="java.lang.String" />
+							<entry key="dd_df"  value="java.lang.String" />
                         </map>
                     </property>
                 </bean>
@@ -81,7 +84,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                 <![CDATA[
                 @UpdateMetadata
                 select _cty, _rgn, _cn, _con, _lat, _lon, _tlcn,
-                     _dd_bv, _dd_bf, _dd_osv, _dd_os, _dd_dc, _dd_d
+                     _dd_bv, _dd_bf, _dd_osv, _dd_os, _dd_dc, _dd_d,t,ts,dd_df
                 from PulsarEvent(session.eventCount = 1);
                 ]]>
             </value>

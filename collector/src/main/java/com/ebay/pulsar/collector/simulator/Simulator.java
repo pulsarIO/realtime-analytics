@@ -42,6 +42,9 @@ public class Simulator extends AbstractEventProcessor implements
 	private String ipFilePath;
 	private String uaFilePath;
 	private String itmFilePath;
+	private String tsFilePath;
+	private String siteFilePath;
+	private String dsFilePath;
 	private int siCount = 1000;
 	private int minVolume = 10;
 	private double peakTimes = 100;
@@ -62,6 +65,9 @@ public class Simulator extends AbstractEventProcessor implements
 	static List<String> m_ipList = new ArrayList<String>();
 	static List<String> m_uaList = new ArrayList<String>();
 	static List<String> m_itemList = new ArrayList<String>();
+	static List<String> m_tsList = new ArrayList<String>();
+	static List<String> m_siteList = new ArrayList<String>();
+	static List<String> m_dsList = new ArrayList<String>();
 
 	private class SimulatorTimingTask extends TimerTask {
 		public void run() {
@@ -82,6 +88,9 @@ public class Simulator extends AbstractEventProcessor implements
 		initList(m_ipList, ipFilePath);
 		initList(m_uaList, uaFilePath);
 		initList(m_itemList, itmFilePath);
+		initList(m_tsList,tsFilePath);
+		initList(m_siteList,siteFilePath);
+		initList(m_dsList,dsFilePath);
 		initGUIDList();
 
 		String finalURL = "";
@@ -129,6 +138,30 @@ public class Simulator extends AbstractEventProcessor implements
 
 	public String getItmFilePath() {
 		return itmFilePath;
+	}
+
+	public String getTsFilePath() {
+		return tsFilePath;
+	}
+
+	public void setTsFilePath(String tsFilePath) {
+		this.tsFilePath = tsFilePath;
+	}
+
+	public String getSiteFilePath() {
+		return siteFilePath;
+	}
+
+	public void setSiteFilePath(String siteFilePath) {
+		this.siteFilePath = siteFilePath;
+	}
+
+	public String getDsFilePath() {
+		return dsFilePath;
+	}
+
+	public void setDsFilePath(String dsFilePath) {
+		this.dsFilePath = dsFilePath;
 	}
 
 	public void setSiCount(int count) {
@@ -186,9 +219,17 @@ public class Simulator extends AbstractEventProcessor implements
             throw new IllegalArgumentException("baseVolume should be >= 0!");
         if(peakTimes <= 0)
             throw new IllegalArgumentException("peakTimes should be > 0!");
-        return (long)(baseVolume + (baseVolume * (peakTimes - 1)) * Math.sin(sec*Math.PI/60));
+        double hourweight =  gethourweight();
+        return (long)(baseVolume + (baseVolume * (peakTimes - 1)) * Math.sin(sec*Math.PI/60) *hourweight)  ;
     }
 
+	private double gethourweight(){
+		Date date = new Date();
+		int hour = date.getHours();
+		int weight = hour/2+1;
+		return weight*0.1;
+		
+	}
 	private void adjustBatchSize() {
 		Date date = new Date();
 		int secondValue = date.getSeconds();
@@ -277,7 +318,7 @@ public class Simulator extends AbstractEventProcessor implements
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
+		
 		return payload;
 	}
 
@@ -310,7 +351,11 @@ public class Simulator extends AbstractEventProcessor implements
 		String payload7 = payload6.replace("${campaignName}", "Campaign - " + String.valueOf(random.nextInt(20)));
 		String payload8 = payload7.replace("${cmapaignGMV}", String.valueOf(((double)random.nextInt(100000)*7)/100.00));
 		String payload9 = payload8.replace("${cmapaignQuantity}", String.valueOf(random.nextInt(100)));
-		return payload9;
+		String payload10 = payload9.replace("${trafficsource}", m_tsList.get(random.nextInt(m_tsList.size() - 1)));
+		String payload11 = payload10.replace("${site}", m_siteList.get(random.nextInt(m_siteList.size() - 1)));
+		String payload12 = payload11.replace("${dwell}", String.valueOf(random.nextInt(10)));
+		String payload13 = payload12.replace("${devicefamily}", m_dsList.get(random.nextInt(m_dsList.size() - 1)));
+		return payload13;
 	}
 
 	private void initGUIDList() {

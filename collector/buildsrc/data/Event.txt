@@ -13,5 +13,10 @@
     "itmP":${itmPrice},
     "cap":"${campaignName}",
     "capG":${cmapaignGMV},
-    "capQ":${cmapaignQuantity}
+    "capQ":${cmapaignQuantity},    
+    "ts":"${trafficsource}",
+    "t":"${site}",
+    "_dwell":${dwell},
+    "dd_df":"${devicefamily}"
+    
 }

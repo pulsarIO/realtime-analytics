@@ -30,11 +30,11 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         
         @OutputTo("PulsarKafkaChannel")
         @PublishOn(topics="Pulsar.mobile")
-        select * from PulsarEvent(et='Mobile');
+        select si as guid, 'MP' as tenant, _cty as city,_rgn as region, _cn as country,_con as continent,_dd_bf as browserfamily,_dd_bv as browserversion,dd_df as devicefamily, _dd_dc as deviceclass, _dd_os as osfamily, _dd_osv as osversion,_dwell as dwell,ts as trafficsource,t as site,tn,ipv4,itmP,cap,rf,js_ev_mak,itmT,capG,'or',_lon,_lat,_tlcn,url,capQ,ac,ua,et,ct from PulsarEvent(et='Mobile');
         
         @OutputTo("PulsarKafkaChannel")
         @PublishOn(topics="Pulsar.sess")
-        select * from SessionEndEvent;
+        select  ts as trafficsource, t as site,  _cty as city, _rgn as region, _cn as country, _con as continent,  _dd_bf as browserfamily, _dd_bv as browserversion, dd_df as devicefamily, _dd_dc as deviceclass, _dd_os as osfamily, _dd_osv as osversion, _snec, _sndn, _snet  from SessionEndEvent;
         ]]>
             </value>
         </property>
