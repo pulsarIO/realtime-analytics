@@ -13,29 +13,34 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     <bean id="EPL" class="com.ebay.jetstream.event.processor.esper.EPL">
         <property name="statementBlock">
             <value>
-        <![CDATA[
-        @OutputTo("OutboundMessageChannel")
-        @ClusterAffinityTag(colname="si")
-        @PublishOn(topics="Pulsar.MC/ssnzEvent")	
-        select * from PulsarEvent;
+	        <![CDATA[
+	        @OutputTo("OutboundMessageChannel")
+	        @ClusterAffinityTag(colname="si")
+	        @PublishOn(topics="Pulsar.MC/ssnzEvent")	
+	        select * from PulsarEvent;
+	        
+	        @OutputTo("OutboundMessageChannel")
+	        @ClusterAffinityTag(colname="_snid")
+	        @PublishOn(topics="Pulsar.MC/ssnzEvent")	
+	        select * from SessionEndEvent;
+	
+	        @OutputTo("OutboundMessageChannel")
+	        @PublishOn(topics="Pulsar.RR1/Mobile")
+	        Select * from PulsarEvent(et='Mobile');
         
-        @OutputTo("OutboundMessageChannel")
-        @ClusterAffinityTag(colname="_snid")
-        @PublishOn(topics="Pulsar.MC/ssnzEvent")	
-        select * from SessionEndEvent;
-
-        @OutputTo("OutboundMessageChannel")
-        @PublishOn(topics="Pulsar.RR1/Mobile")
-        Select * from PulsarEvent(et='Mobile');
-        
-        @OutputTo("PulsarKafkaChannel")
-        @PublishOn(topics="Pulsar.mobile")
-        select si as guid, 'MP' as tenant, _cty as city,_rgn as region, _cn as country,_con as continent,_dd_bf as browserfamily,_dd_bv as browserversion,dd_df as devicefamily, _dd_dc as deviceclass, _dd_os as osfamily, _dd_osv as osversion,_dwell as dwell,ts as trafficsource,t as site,tn,ipv4,itmP,cap,rf,js_ev_mak,itmT,capG,'or',_lon,_lat,_tlcn,url,capQ,ac,ua,et,ct from PulsarEvent(et='Mobile');
-        
-        @OutputTo("PulsarKafkaChannel")
-        @PublishOn(topics="Pulsar.sess")
-        select  ts as trafficsource, t as site,  _cty as city, _rgn as region, _cn as country, _con as continent,  _dd_bf as browserfamily, _dd_bv as browserversion, dd_df as devicefamily, _dd_dc as deviceclass, _dd_os as osfamily, _dd_osv as osversion, _snec, _sndn, _snet  from SessionEndEvent;
-        ]]>
+	        @OutputTo("PulsarKafkaChannel")
+	        @PublishOn(topics="Pulsar.mobile")
+			select * from PulsarEvent(et='Mobile');
+	        
+	        @OutputTo("PulsarKafkaChannel")
+	        @PublishOn(topics="Pulsar.sess")
+	        select  ts as trafficsource, t as site,  _cty as city, _rgn as region, _cn as country, _con as continent,  _dd_bf as browserfamily, _dd_bv as browserversion, dd_df as devicefamily, _dd_dc as deviceclass, _dd_os as osfamily, _dd_osv as osversion, _snec, _sndn, _snet  from SessionEndEvent;
+	                
+	        @OutputTo("PulsarKafkaChannel")
+	        @PublishOn(topics="Pulsar.event")
+	        select si as guid, 'MP' as tenant, _cty as city,_rgn as region, _cn as country,_con as continent,_dd_bf as browserfamily, _dd_bv as browserversion, dd_df as devicefamily, _dd_dc as deviceclass, _dd_os as osfamily, _dd_osv as osversion, _dwell as dwell, ts as trafficsource, t as site, tn, ipv4, itmP, cap, rf, js_ev_mak, itmT, capG, _lon, _lat, _tlcn, url, capQ, ac, ua, et, ct from PulsarEvent;
+	        
+	        ]]>
             </value>
         </property>
     </bean>
