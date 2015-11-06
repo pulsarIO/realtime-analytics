@@ -1,3 +1,8 @@
+# 1.0.2 (2015-11-05)
+
+* Add EPL to publish events and sessions to Kafka and ingest by Druid.
+* Fix metriccalculator replay configuration errors.
+
 # 1.0.1 (2015-08-14)
 
 * Publish the core project to maven central
