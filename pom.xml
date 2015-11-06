@@ -9,7 +9,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ebay.pulsar</groupId>
     <artifactId>realtime-analytics</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
     <packaging>pom</packaging>
     <name>realtime-analytics pipeline</name>
     <description>Pulsar realtime analytics</description>
