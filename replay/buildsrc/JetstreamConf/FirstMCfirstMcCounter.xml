@@ -77,7 +77,7 @@ default-lazy-init="false">
         <property name="config" ref="replayKafkaProcessorConfig" />
         <property name="eventSinks">
                 <list>
-                    <ref bean="DistributorSsnzEventOutboundMessagesChannel" />
+                    <ref bean="FirstMCOutboundMessagesChannel" />
                 </list>
             </property>
     </bean>
