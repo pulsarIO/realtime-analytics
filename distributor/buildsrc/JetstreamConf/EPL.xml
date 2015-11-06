@@ -30,7 +30,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         
 	        @OutputTo("PulsarKafkaChannel")
 	        @PublishOn(topics="Pulsar.mobile")
-			select * from PulsarEvent(et='Mobile');
+	        select * from PulsarEvent(et='Mobile');
 	        
 	        @OutputTo("PulsarKafkaChannel")
 	        @PublishOn(topics="Pulsar.sess")
